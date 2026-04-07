@@ -1,0 +1,9 @@
+{
+    "KPlugin": {
+        "Description": "Manage sudoers, SELinux, and polkit security settings",
+        "Icon": "security-high",
+        "Name": "Security"
+    },
+    "X-KDE-System-Settings-Parent-Category": "nsa-system-administration",
+    "X-KDE-Weight": 70
+}
