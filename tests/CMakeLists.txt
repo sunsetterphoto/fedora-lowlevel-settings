@@ -7,3 +7,10 @@ target_link_libraries(test_backupmanager
     Qt6::Test
 )
 add_test(NAME test_backupmanager COMMAND test_backupmanager)
+
+add_executable(test_configparser common/test_configparser.cpp)
+target_link_libraries(test_configparser
+    nsa-fsm-common
+    Qt6::Test
+)
+add_test(NAME test_configparser COMMAND test_configparser)
