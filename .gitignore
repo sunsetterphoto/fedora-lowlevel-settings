@@ -1,0 +1,6 @@
+build/
+build-*/
+.cache/
+CMakeLists.txt.user
+*.autosave
+compile_commands.json
