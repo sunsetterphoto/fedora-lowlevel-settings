@@ -34,4 +34,8 @@ install(FILES categories/nsa-system-administration.desktop
 # Backup directory creation
 install(DIRECTORY DESTINATION /var/lib/nsa-fsm/backups)
 
+if(BUILD_TESTING)
+    add_subdirectory(tests)
+endif()
+
 feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
