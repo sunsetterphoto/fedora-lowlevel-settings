@@ -1,8 +1,10 @@
 {
     "KPlugin": {
         "Description": "Manage system and user environment variables",
+        "Description[de]": "System- und Benutzer-Umgebungsvariablen verwalten",
         "Icon": "application-x-executable",
-        "Name": "Environment"
+        "Name": "Environment",
+        "Name[de]": "Umgebungsvariablen"
     },
     "X-KDE-System-Settings-Parent-Category": "nsa-system-administration",
     "X-KDE-Weight": 100

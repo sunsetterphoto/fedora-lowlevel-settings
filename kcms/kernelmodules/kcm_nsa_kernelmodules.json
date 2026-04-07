@@ -1,8 +1,10 @@
 {
     "KPlugin": {
         "Description": "View loaded kernel modules and manage blacklists",
+        "Description[de]": "Geladene Kernel-Module und Blacklists verwalten",
         "Icon": "cpu",
-        "Name": "Kernel Modules"
+        "Name": "Kernel Modules",
+        "Name[de]": "Kernel-Module"
     },
     "X-KDE-System-Settings-Parent-Category": "nsa-system-administration",
     "X-KDE-Weight": 50

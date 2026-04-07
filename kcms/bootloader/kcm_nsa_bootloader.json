@@ -1,8 +1,10 @@
 {
     "KPlugin": {
         "Description": "GRUB2 bootloader and kernel entry configuration",
+        "Description[de]": "GRUB2 und Kernel-Einträge konfigurieren",
         "Icon": "system-reboot",
-        "Name": "Bootloader"
+        "Name": "Bootloader",
+        "Name[de]": "Bootloader"
     },
     "X-KDE-System-Settings-Parent-Category": "nsa-system-administration",
     "X-KDE-Weight": 30

@@ -1,8 +1,10 @@
 {
     "KPlugin": {
         "Description": "View and manage systemd timers and cron jobs",
+        "Description[de]": "Systemd-Timer und Cron-Jobs verwalten",
         "Icon": "chronometer",
-        "Name": "Scheduled Tasks"
+        "Name": "Scheduled Tasks",
+        "Name[de]": "Geplante Aufgaben"
     },
     "X-KDE-System-Settings-Parent-Category": "nsa-system-administration",
     "X-KDE-Weight": 60
