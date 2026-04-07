@@ -1,0 +1,9 @@
+{
+    "KPlugin": {
+        "Description": "Manage /etc/fstab mount entries",
+        "Icon": "drive-harddisk",
+        "Name": "Mounts"
+    },
+    "X-KDE-System-Settings-Parent-Category": "nsa-system-administration",
+    "X-KDE-Weight": 40
+}
