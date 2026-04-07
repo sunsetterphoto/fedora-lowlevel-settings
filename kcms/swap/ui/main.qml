@@ -43,6 +43,13 @@ KCMUtils.SimpleKCM {
             placeholderText: "min(ram, 8192)"
             onTextEdited: kcm.zramSize = text
         }
+        QQC2.Label {
+            text: "Amount of memory for compressed swap. 'min(ram, 8192)' means the smaller of total RAM or 8 GB. You can also specify an absolute value in MB."
+            font.pointSize: Kirigami.Theme.smallFont.pointSize
+            opacity: 0.7
+            wrapMode: Text.WordWrap
+            Layout.fillWidth: true
+        }
 
         QQC2.ComboBox {
             Kirigami.FormData.label: "Algorithm:"
@@ -54,6 +61,13 @@ KCMUtils.SimpleKCM {
             onActivated: (index) => {
                 kcm.zramAlgorithm = kcm.availableAlgorithms[index]
             }
+        }
+        QQC2.Label {
+            text: "zstd = best compression ratio (recommended). lz4 = fastest but larger. lzo-rle = balanced, Linux default."
+            font.pointSize: Kirigami.Theme.smallFont.pointSize
+            opacity: 0.7
+            wrapMode: Text.WordWrap
+            Layout.fillWidth: true
         }
 
         Kirigami.InlineMessage {
@@ -193,6 +207,13 @@ KCMUtils.SimpleKCM {
         QQC2.Label {
             Kirigami.FormData.label: "vm.swappiness:"
             text: kcm.swappiness
+        }
+        QQC2.Label {
+            text: "Controls how aggressively the kernel uses swap. Lower values prefer keeping data in RAM. Configure in the 'Kernel Parameters' module (vm.swappiness)."
+            font.pointSize: Kirigami.Theme.smallFont.pointSize
+            opacity: 0.7
+            wrapMode: Text.WordWrap
+            Layout.fillWidth: true
         }
     }
 }

@@ -10,20 +10,35 @@ import org.kde.kcmutils as KCMUtils
 KCMUtils.ScrollViewKCM {
     id: root
 
-    header: RowLayout {
+    header: ColumnLayout {
         spacing: Kirigami.Units.smallSpacing
 
-        Kirigami.SearchField {
-            id: searchField
+        RowLayout {
+            spacing: Kirigami.Units.smallSpacing
             Layout.fillWidth: true
-            placeholderText: "Filter modules..."
-            onTextChanged: kcm.searchText = text
+
+            Kirigami.SearchField {
+                id: searchField
+                Layout.fillWidth: true
+                placeholderText: "Filter modules..."
+                onTextChanged: kcm.searchText = text
+            }
+
+            QQC2.Button {
+                icon.name: "view-refresh"
+                text: "Refresh"
+                onClicked: kcm.refresh()
+            }
         }
 
-        QQC2.Button {
-            icon.name: "view-refresh"
-            text: "Refresh"
-            onClicked: kcm.refresh()
+        QQC2.Label {
+            text: "Blacklisting takes effect after reboot. Loading/unloading is immediate but temporary."
+            font.pointSize: Kirigami.Theme.smallFont.pointSize
+            opacity: 0.7
+            wrapMode: Text.WordWrap
+            Layout.fillWidth: true
+            Layout.leftMargin: Kirigami.Units.smallSpacing
+            Layout.rightMargin: Kirigami.Units.smallSpacing
         }
     }
 
@@ -112,7 +127,7 @@ KCMUtils.ScrollViewKCM {
                             infoSheet.moduleName = moduleDelegate.modelData.name
                             infoSheet.open()
                         }
-                        QQC2.ToolTip.text: "Module Info"
+                        QQC2.ToolTip.text: "Shows detailed module information (author, description, parameters)"
                         QQC2.ToolTip.visible: hovered
                     }
 
@@ -128,7 +143,8 @@ KCMUtils.ScrollViewKCM {
                             }
                         }
                         QQC2.ToolTip.text: moduleDelegate.modelData.isBlacklisted
-                                           ? "Remove from blacklist" : "Add to blacklist"
+                                           ? "Allows this module to load again on next boot"
+                                           : "Prevents this module from loading on next boot. Does not unload it now."
                         QQC2.ToolTip.visible: hovered
                     }
 
@@ -137,7 +153,7 @@ KCMUtils.ScrollViewKCM {
                         icon.name: "list-remove"
                         visible: moduleDelegate.modelData.usedCount === 0
                         onClicked: kcm.unloadModule(moduleDelegate.modelData.name)
-                        QQC2.ToolTip.text: "Unload module"
+                        QQC2.ToolTip.text: "Removes the module from the running kernel. Only possible when not in use."
                         QQC2.ToolTip.visible: hovered
                     }
                 }

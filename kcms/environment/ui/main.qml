@@ -39,7 +39,7 @@ KCMUtils.SimpleKCM {
                 Layout.fillWidth: true
                 Layout.margins: Kirigami.Units.smallSpacing
                 type: Kirigami.MessageType.Information
-                text: "Changes require re-login to take effect"
+                text: "System-wide variables in /etc/environment apply to all users and sessions. Changes require re-login."
                 visible: true
             }
 
@@ -133,7 +133,7 @@ KCMUtils.SimpleKCM {
                 Layout.fillWidth: true
                 Layout.margins: Kirigami.Units.smallSpacing
                 type: Kirigami.MessageType.Information
-                text: "User session variables from ~/.config/environment.d/"
+                text: "User session variables from ~/.config/environment.d/ apply to your session only. Changes take effect on next login."
                 visible: true
             }
 
@@ -308,6 +308,14 @@ KCMUtils.SimpleKCM {
                     placeholderText: "value"
                     onAccepted: saveButton.clicked()
                 }
+            }
+
+            QQC2.Label {
+                text: "Common variables: PATH (search path for commands), EDITOR (default text editor), LANG (system language), XDG_DATA_DIRS (data file search paths)."
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                opacity: 0.7
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
             }
 
             RowLayout {

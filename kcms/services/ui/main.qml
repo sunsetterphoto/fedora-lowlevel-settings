@@ -12,33 +12,122 @@ KCMUtils.ScrollViewKCM {
 
     readonly property var typeFilterValues: ["", "service", "timer", "socket", "mount", "target"]
 
-    header: RowLayout {
+    header: ColumnLayout {
         spacing: Kirigami.Units.smallSpacing
 
-        Kirigami.SearchField {
-            id: searchField
+        RowLayout {
+            spacing: Kirigami.Units.smallSpacing
             Layout.fillWidth: true
-            placeholderText: "Filter units..."
-            onTextChanged: kcm.unitModel.searchText = text
+
+            Kirigami.SearchField {
+                id: searchField
+                Layout.fillWidth: true
+                placeholderText: "Filter units..."
+                onTextChanged: kcm.unitModel.searchText = text
+            }
+
+            QQC2.ComboBox {
+                id: typeCombo
+                model: ["All", "Services", "Timers", "Sockets", "Mounts", "Targets"]
+                onCurrentIndexChanged: kcm.unitModel.typeFilter = root.typeFilterValues[currentIndex]
+            }
+
+            QQC2.CheckBox {
+                id: userCheck
+                text: "User Services"
+                checked: kcm.unitModel.showUserUnits
+                onCheckedChanged: kcm.unitModel.showUserUnits = checked
+            }
+
+            QQC2.Button {
+                icon.name: "view-refresh"
+                text: "Refresh"
+                onClicked: kcm.unitModel.refresh()
+            }
         }
 
-        QQC2.ComboBox {
-            id: typeCombo
-            model: ["All", "Services", "Timers", "Sockets", "Mounts", "Targets"]
-            onCurrentIndexChanged: kcm.unitModel.typeFilter = root.typeFilterValues[currentIndex]
-        }
+        // State legend
+        Flow {
+            Layout.fillWidth: true
+            Layout.leftMargin: Kirigami.Units.smallSpacing
+            Layout.rightMargin: Kirigami.Units.smallSpacing
+            spacing: Kirigami.Units.largeSpacing
 
-        QQC2.CheckBox {
-            id: userCheck
-            text: "User Services"
-            checked: kcm.unitModel.showUserUnits
-            onCheckedChanged: kcm.unitModel.showUserUnits = checked
-        }
+            QQC2.Label {
+                text: "States:"
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                font.bold: true
+                opacity: 0.7
+            }
 
-        QQC2.Button {
-            icon.name: "view-refresh"
-            text: "Refresh"
-            onClicked: kcm.unitModel.refresh()
+            Row {
+                spacing: 4
+                Rectangle {
+                    width: 8; height: 8; radius: 4; color: "#27ae60"
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+                QQC2.Label {
+                    text: "Active (running)"
+                    font.pointSize: Kirigami.Theme.smallFont.pointSize
+                    opacity: 0.7
+                }
+            }
+
+            Row {
+                spacing: 4
+                Rectangle {
+                    width: 8; height: 8; radius: 4; color: "#e74c3c"
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+                QQC2.Label {
+                    text: "Failed (error)"
+                    font.pointSize: Kirigami.Theme.smallFont.pointSize
+                    opacity: 0.7
+                }
+            }
+
+            Row {
+                spacing: 4
+                Rectangle {
+                    width: 8; height: 8; radius: 4; color: "#95a5a6"
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+                QQC2.Label {
+                    text: "Inactive (stopped)"
+                    font.pointSize: Kirigami.Theme.smallFont.pointSize
+                    opacity: 0.7
+                }
+            }
+
+            QQC2.Label {
+                text: "|"
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                opacity: 0.4
+            }
+
+            QQC2.Label {
+                text: "enabled = starts at boot"
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                opacity: 0.7
+            }
+
+            QQC2.Label {
+                text: "disabled = manual start only"
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                opacity: 0.7
+            }
+
+            QQC2.Label {
+                text: "static = dependency only"
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                opacity: 0.7
+            }
+
+            QQC2.Label {
+                text: "masked = blocked from starting"
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                opacity: 0.7
+            }
         }
     }
 
@@ -116,7 +205,7 @@ KCMUtils.ScrollViewKCM {
                         icon.name: "media-playback-start"
                         visible: model.activeState !== "active"
                         onClicked: kcm.startUnit(model.name)
-                        QQC2.ToolTip.text: "Start"
+                        QQC2.ToolTip.text: "Start this unit now"
                         QQC2.ToolTip.visible: hovered
                     }
 
@@ -125,7 +214,7 @@ KCMUtils.ScrollViewKCM {
                         icon.name: "media-playback-stop"
                         visible: model.activeState === "active"
                         onClicked: kcm.stopUnit(model.name)
-                        QQC2.ToolTip.text: "Stop"
+                        QQC2.ToolTip.text: "Stop this unit immediately"
                         QQC2.ToolTip.visible: hovered
                     }
 
@@ -133,7 +222,7 @@ KCMUtils.ScrollViewKCM {
                     QQC2.ToolButton {
                         icon.name: "view-refresh"
                         onClicked: kcm.restartUnit(model.name)
-                        QQC2.ToolTip.text: "Restart"
+                        QQC2.ToolTip.text: "Stop and start this unit again"
                         QQC2.ToolTip.visible: hovered
                     }
 
@@ -148,7 +237,9 @@ KCMUtils.ScrollViewKCM {
                                 kcm.enableUnit(model.name);
                             }
                         }
-                        QQC2.ToolTip.text: model.unitFileState === "enabled" ? "Disable" : "Enable"
+                        QQC2.ToolTip.text: model.unitFileState === "enabled"
+                                           ? "Disable: prevent starting automatically at boot"
+                                           : "Enable: start this unit automatically at boot"
                         QQC2.ToolTip.visible: hovered
                     }
                 }

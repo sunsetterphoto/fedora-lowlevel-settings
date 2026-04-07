@@ -33,6 +33,14 @@ KCMUtils.ScrollViewKCM {
         }
     }
 
+    footer: QQC2.Label {
+        text: "Disabling a repository only affects package availability. Already installed packages are not removed."
+        font.pointSize: Kirigami.Theme.smallFont.pointSize
+        opacity: 0.7
+        wrapMode: Text.WordWrap
+        padding: Kirigami.Units.smallSpacing
+    }
+
     view: ListView {
         id: repoList
         model: kcm.repos
@@ -100,6 +108,19 @@ KCMUtils.ScrollViewKCM {
                             elide: Text.ElideRight
                             Layout.fillWidth: true
                             Layout.leftMargin: Kirigami.Units.iconSizes.small + Kirigami.Units.smallSpacing
+
+                            QQC2.ToolTip.text: repoDelegate.modelData.metalink
+                                               ? "Metalink: URL providing mirror list for automatic mirror selection"
+                                               : "BaseURL: Direct URL to the repository's package directory"
+                            QQC2.ToolTip.visible: urlMouse.containsMouse && text !== ""
+                            QQC2.ToolTip.delay: 500
+
+                            MouseArea {
+                                id: urlMouse
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                acceptedButtons: Qt.NoButton
+                            }
                         }
                     }
 
@@ -112,6 +133,10 @@ KCMUtils.ScrollViewKCM {
                                 checked
                             )
                         }
+                        QQC2.ToolTip.text: checked
+                                           ? "Enabled: packages from this repository are available for installation and updates"
+                                           : "Disabled: packages from this repository are not available"
+                        QQC2.ToolTip.visible: hovered
                     }
                 }
 
@@ -134,6 +159,17 @@ KCMUtils.ScrollViewKCM {
                         text: "GPG Check: " + (repoDelegate.modelData.gpgcheck ? "Yes" : "No")
                         font.pointSize: Kirigami.Theme.smallFont.pointSize
                         opacity: 0.7
+
+                        QQC2.ToolTip.text: "When enabled, package signatures are verified for authenticity"
+                        QQC2.ToolTip.visible: gpgMouse.containsMouse
+                        QQC2.ToolTip.delay: 500
+
+                        MouseArea {
+                            id: gpgMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            acceptedButtons: Qt.NoButton
+                        }
                     }
 
                     QQC2.Label {

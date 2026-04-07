@@ -10,34 +10,119 @@ import org.kde.kcmutils as KCMUtils
 KCMUtils.ScrollViewKCM {
     id: root
 
-    header: RowLayout {
+    header: ColumnLayout {
         spacing: Kirigami.Units.smallSpacing
 
-        Kirigami.SearchField {
-            id: searchField
+        RowLayout {
+            spacing: Kirigami.Units.smallSpacing
             Layout.fillWidth: true
-            placeholderText: "Search log messages..."
-            onAccepted: kcm.journalModel.searchText = text
+
+            Kirigami.SearchField {
+                id: searchField
+                Layout.fillWidth: true
+                placeholderText: "Search log messages..."
+                onAccepted: kcm.journalModel.searchText = text
+            }
+
+            QQC2.ComboBox {
+                id: priorityCombo
+                model: ["Emergency", "Alert", "Critical", "Error", "Warning", "Notice", "Info", "Debug"]
+                currentIndex: kcm.journalModel.priorityFilter
+                onCurrentIndexChanged: kcm.journalModel.priorityFilter = currentIndex
+
+                QQC2.ToolTip.text: {
+                    var descriptions = [
+                        "Emergency (0): System is unusable",
+                        "Alert (1): Immediate action required",
+                        "Critical (2): Critical conditions",
+                        "Error (3): Error conditions",
+                        "Warning (4): Warning conditions",
+                        "Notice (5): Normal but significant",
+                        "Info (6): Informational",
+                        "Debug (7): Debug messages"
+                    ];
+                    return "Show messages up to: " + descriptions[currentIndex];
+                }
+                QQC2.ToolTip.visible: hovered
+                QQC2.ToolTip.delay: 500
+            }
+
+            QQC2.CheckBox {
+                id: kernelCheck
+                text: "Kernel only"
+                checked: kcm.journalModel.kernelOnly
+                onCheckedChanged: kcm.journalModel.kernelOnly = checked
+
+                QQC2.ToolTip.text: "Show only kernel ring buffer messages (equivalent to dmesg)"
+                QQC2.ToolTip.visible: hovered
+                QQC2.ToolTip.delay: 500
+            }
+
+            QQC2.Button {
+                icon.name: "view-refresh"
+                text: "Refresh"
+                onClicked: kcm.journalModel.refresh()
+            }
         }
 
-        QQC2.ComboBox {
-            id: priorityCombo
-            model: ["Emergency", "Alert", "Critical", "Error", "Warning", "Notice", "Info", "Debug"]
-            currentIndex: kcm.journalModel.priorityFilter
-            onCurrentIndexChanged: kcm.journalModel.priorityFilter = currentIndex
-        }
+        // Priority legend
+        Flow {
+            Layout.fillWidth: true
+            Layout.leftMargin: Kirigami.Units.smallSpacing
+            Layout.rightMargin: Kirigami.Units.smallSpacing
+            spacing: Kirigami.Units.largeSpacing
 
-        QQC2.CheckBox {
-            id: kernelCheck
-            text: "Kernel only"
-            checked: kcm.journalModel.kernelOnly
-            onCheckedChanged: kcm.journalModel.kernelOnly = checked
-        }
+            QQC2.Label {
+                text: "Priorities:"
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                font.bold: true
+                opacity: 0.7
+            }
 
-        QQC2.Button {
-            icon.name: "view-refresh"
-            text: "Refresh"
-            onClicked: kcm.journalModel.refresh()
+            Row {
+                spacing: 4
+                Rectangle {
+                    width: 8; height: 8; radius: 4; color: "#e74c3c"
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+                QQC2.Label {
+                    text: "Emergency/Alert/Critical"
+                    font.pointSize: Kirigami.Theme.smallFont.pointSize
+                    opacity: 0.7
+                }
+            }
+
+            Row {
+                spacing: 4
+                Rectangle {
+                    width: 8; height: 8; radius: 4; color: "#e67e22"
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+                QQC2.Label {
+                    text: "Error"
+                    font.pointSize: Kirigami.Theme.smallFont.pointSize
+                    opacity: 0.7
+                }
+            }
+
+            Row {
+                spacing: 4
+                Rectangle {
+                    width: 8; height: 8; radius: 4; color: "#f1c40f"
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+                QQC2.Label {
+                    text: "Warning"
+                    font.pointSize: Kirigami.Theme.smallFont.pointSize
+                    opacity: 0.7
+                }
+            }
+
+            QQC2.Label {
+                text: "Notice/Info/Debug (no indicator)"
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                opacity: 0.7
+            }
         }
     }
 

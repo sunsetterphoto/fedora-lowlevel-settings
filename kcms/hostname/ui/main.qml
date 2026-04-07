@@ -28,17 +28,38 @@ KCMUtils.SimpleKCM {
             text: kcm.prettyHostname
             onTextEdited: kcm.prettyHostname = text
         }
+        QQC2.Label {
+            text: "Free-form display name (e.g., 'Samuel's Laptop'). Can contain any characters."
+            font.pointSize: Kirigami.Theme.smallFont.pointSize
+            opacity: 0.7
+            wrapMode: Text.WordWrap
+            Layout.fillWidth: true
+        }
 
         QQC2.TextField {
             Kirigami.FormData.label: "Static Hostname:"
             text: kcm.staticHostname
             onTextEdited: kcm.staticHostname = text
         }
+        QQC2.Label {
+            text: "System hostname used in networking (e.g., 'fedora'). Only lowercase letters, numbers, and hyphens."
+            font.pointSize: Kirigami.Theme.smallFont.pointSize
+            opacity: 0.7
+            wrapMode: Text.WordWrap
+            Layout.fillWidth: true
+        }
 
         QQC2.TextField {
             Kirigami.FormData.label: "Icon Name:"
             text: kcm.iconName
             onTextEdited: kcm.iconName = text
+        }
+        QQC2.Label {
+            text: "Icon identifier for this machine type (e.g., 'computer-laptop')."
+            font.pointSize: Kirigami.Theme.smallFont.pointSize
+            opacity: 0.7
+            wrapMode: Text.WordWrap
+            Layout.fillWidth: true
         }
 
         QQC2.Label {
@@ -99,6 +120,13 @@ KCMUtils.SimpleKCM {
             placeholderText: "e.g. 1.1.1.1 8.8.8.8"
             onTextEdited: kcm.dnsServers = text
         }
+        QQC2.Label {
+            text: "Space-separated list of DNS server addresses."
+            font.pointSize: Kirigami.Theme.smallFont.pointSize
+            opacity: 0.7
+            wrapMode: Text.WordWrap
+            Layout.fillWidth: true
+        }
 
         QQC2.TextField {
             Kirigami.FormData.label: "Fallback DNS:"
@@ -118,6 +146,13 @@ KCMUtils.SimpleKCM {
                 kcm.dnssec = root.dnssecOptions[index]
             }
         }
+        QQC2.Label {
+            text: "no = Don't validate DNS responses. allow-downgrade = Validate if server supports it. yes = Always validate (may break with some networks)."
+            font.pointSize: Kirigami.Theme.smallFont.pointSize
+            opacity: 0.7
+            wrapMode: Text.WordWrap
+            Layout.fillWidth: true
+        }
 
         QQC2.ComboBox {
             Kirigami.FormData.label: "DNS over TLS:"
@@ -129,6 +164,13 @@ KCMUtils.SimpleKCM {
             onActivated: (index) => {
                 kcm.dnsOverTls = root.dnsOverTlsOptions[index]
             }
+        }
+        QQC2.Label {
+            text: "no = Plain DNS. opportunistic = Encrypt if server supports it. yes = Always encrypt (may break with some networks)."
+            font.pointSize: Kirigami.Theme.smallFont.pointSize
+            opacity: 0.7
+            wrapMode: Text.WordWrap
+            Layout.fillWidth: true
         }
     }
 }

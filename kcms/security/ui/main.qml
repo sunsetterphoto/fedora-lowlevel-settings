@@ -54,6 +54,15 @@ KCMUtils.SimpleKCM {
                 visible: true
             }
 
+            QQC2.Label {
+                text: "Rules define which users can run which commands with elevated privileges. Each file in /etc/sudoers.d/ contains one or more rules. Syntax: 'username ALL=(ALL) COMMAND' or 'username ALL=(ALL) NOPASSWD: COMMAND'."
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                opacity: 0.7
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+                Layout.margins: Kirigami.Units.smallSpacing
+            }
+
             ListView {
                 id: sudoersList
                 Layout.fillWidth: true
@@ -153,6 +162,24 @@ KCMUtils.SimpleKCM {
                 }
 
                 QQC2.Label {
+                    text: selinuxModeCombo.currentIndex === 0
+                          ? "Enforcing: SELinux policies are enforced. Violations are blocked and logged."
+                          : "Permissive: SELinux policies are not enforced but violations are logged. Useful for debugging."
+                    font.pointSize: Kirigami.Theme.smallFont.pointSize
+                    opacity: 0.7
+                    wrapMode: Text.WordWrap
+                    Layout.fillWidth: true
+                    visible: kcm.selinuxMode !== "Disabled" && kcm.selinuxMode !== "Unknown"
+                }
+
+                QQC2.Label {
+                    text: "Switching between modes is immediate. A reboot is NOT required."
+                    font.pointSize: Kirigami.Theme.smallFont.pointSize
+                    opacity: 0.7
+                    visible: kcm.selinuxMode !== "Disabled" && kcm.selinuxMode !== "Unknown"
+                }
+
+                QQC2.Label {
                     visible: kcm.selinuxMode === "Disabled"
                     text: "SELinux is disabled. Enable it in /etc/selinux/config and reboot."
                     opacity: 0.7
@@ -243,6 +270,15 @@ KCMUtils.SimpleKCM {
                 type: Kirigami.MessageType.Information
                 text: "Polkit actions from /usr/share/polkit-1/actions/ (read-only)"
                 visible: true
+            }
+
+            QQC2.Label {
+                text: "Polkit rules control which users can perform privileged actions without entering a password. Rules are JavaScript files evaluated in order."
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                opacity: 0.7
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+                Layout.margins: Kirigami.Units.smallSpacing
             }
 
             // Search field for polkit actions

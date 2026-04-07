@@ -42,6 +42,15 @@ KCMUtils.SimpleKCM {
         ColumnLayout {
             spacing: 0
 
+            QQC2.Label {
+                text: "systemd timers are the modern replacement for cron jobs. They can trigger based on time, boot, or other events."
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                opacity: 0.7
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+                Layout.margins: Kirigami.Units.smallSpacing
+            }
+
             ListView {
                 id: timerList
                 Layout.fillWidth: true
@@ -138,7 +147,7 @@ KCMUtils.SimpleKCM {
                                 icon.name: "media-playback-start"
                                 visible: timerDelegate.modelData.activeState !== "active"
                                 onClicked: kcm.startTimer(timerDelegate.modelData.name)
-                                QQC2.ToolTip.text: "Start"
+                                QQC2.ToolTip.text: "Activate this timer now"
                                 QQC2.ToolTip.visible: hovered
                             }
 
@@ -146,7 +155,7 @@ KCMUtils.SimpleKCM {
                                 icon.name: "media-playback-stop"
                                 visible: timerDelegate.modelData.activeState === "active"
                                 onClicked: kcm.stopTimer(timerDelegate.modelData.name)
-                                QQC2.ToolTip.text: "Stop"
+                                QQC2.ToolTip.text: "Deactivate this timer now"
                                 QQC2.ToolTip.visible: hovered
                             }
 
@@ -168,7 +177,9 @@ KCMUtils.SimpleKCM {
                                 }
                                 QQC2.ToolTip.text: {
                                     let st = timerDelegate.modelData.unitFileState || "";
-                                    return st === "enabled" ? "Disable" : "Enable";
+                                    return st === "enabled"
+                                           ? "Disable: prevent this timer from starting at boot"
+                                           : "Enable: start this timer automatically at boot";
                                 }
                                 QQC2.ToolTip.visible: hovered
                             }
@@ -191,6 +202,15 @@ KCMUtils.SimpleKCM {
             ColumnLayout {
                 width: parent.availableWidth
                 spacing: Kirigami.Units.largeSpacing
+
+                QQC2.Label {
+                    text: "Cron syntax: minute(0-59) hour(0-23) day(1-31) month(1-12) weekday(0-7, 0=Sun). Use * for 'every'. Example: '0 3 * * *' = every day at 3:00 AM."
+                    font.pointSize: Kirigami.Theme.smallFont.pointSize
+                    opacity: 0.7
+                    wrapMode: Text.WordWrap
+                    Layout.fillWidth: true
+                    Layout.margins: Kirigami.Units.smallSpacing
+                }
 
                 // User Crontab section
                 Kirigami.FormLayout {
