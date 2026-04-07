@@ -1,0 +1,9 @@
+{
+    "KPlugin": {
+        "Description": "Manage system and user environment variables",
+        "Icon": "application-x-executable",
+        "Name": "Environment"
+    },
+    "X-KDE-System-Settings-Parent-Category": "nsa-system-administration",
+    "X-KDE-Weight": 100
+}
