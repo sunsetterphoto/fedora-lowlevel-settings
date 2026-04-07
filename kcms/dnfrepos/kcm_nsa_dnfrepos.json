@@ -1,0 +1,9 @@
+{
+    "KPlugin": {
+        "Description": "Manage DNF package repositories and COPR projects",
+        "Icon": "package-x-generic",
+        "Name": "Package Repos"
+    },
+    "X-KDE-System-Settings-Parent-Category": "nsa-system-administration",
+    "X-KDE-Weight": 80
+}
