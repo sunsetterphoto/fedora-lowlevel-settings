@@ -1,0 +1,9 @@
+{
+    "KPlugin": {
+        "Description": "Manage systemd services, timers, sockets and targets",
+        "Icon": "system-run",
+        "Name": "Services"
+    },
+    "X-KDE-System-Settings-Parent-Category": "nsa-system-administration",
+    "X-KDE-Weight": 10
+}
