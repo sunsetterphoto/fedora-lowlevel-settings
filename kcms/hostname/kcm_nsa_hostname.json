@@ -1,0 +1,9 @@
+{
+    "KPlugin": {
+        "Description": "Hostname, /etc/hosts, and DNS configuration",
+        "Icon": "network-workgroup",
+        "Name": "Hostname & Network"
+    },
+    "X-KDE-System-Settings-Parent-Category": "nsa-system-administration",
+    "X-KDE-Weight": 90
+}

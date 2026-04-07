@@ -2,3 +2,4 @@
 add_subdirectory(journal)
 add_subdirectory(services)
 add_subdirectory(sysctl)
+add_subdirectory(hostname)
