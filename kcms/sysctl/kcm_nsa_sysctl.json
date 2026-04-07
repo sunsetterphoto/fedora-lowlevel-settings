@@ -1,8 +1,10 @@
 {
     "KPlugin": {
         "Description": "View and edit kernel parameters (sysctl)",
+        "Description[de]": "Kernel-Parameter (sysctl) anzeigen und bearbeiten",
         "Icon": "preferences-system-linux",
-        "Name": "Kernel Parameters"
+        "Name": "Kernel Parameters",
+        "Name[de]": "Kernel-Parameter"
     },
     "X-KDE-System-Settings-Parent-Category": "nsa-system-administration",
     "X-KDE-Weight": 20

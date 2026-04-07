@@ -1,8 +1,10 @@
 {
     "KPlugin": {
         "Description": "View and search systemd journal logs",
+        "Description[de]": "Systemd-Journal durchsuchen und anzeigen",
         "Icon": "text-x-log",
-        "Name": "System Logs"
+        "Name": "System Logs",
+        "Name[de]": "Systemprotokoll"
     },
     "X-KDE-System-Settings-Parent-Category": "nsa-system-administration",
     "X-KDE-Weight": 120

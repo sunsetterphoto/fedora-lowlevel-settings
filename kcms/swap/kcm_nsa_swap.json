@@ -1,8 +1,10 @@
 {
     "KPlugin": {
         "Description": "View swap status and configure zram-generator",
+        "Description[de]": "Swap-Status und zram-Konfiguration",
         "Icon": "memory",
-        "Name": "Swap & zram"
+        "Name": "Swap & zram",
+        "Name[de]": "Swap & zram"
     },
     "X-KDE-System-Settings-Parent-Category": "nsa-system-administration",
     "X-KDE-Weight": 110
