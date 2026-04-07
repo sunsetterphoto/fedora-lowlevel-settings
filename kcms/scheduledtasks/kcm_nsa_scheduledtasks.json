@@ -1,0 +1,9 @@
+{
+    "KPlugin": {
+        "Description": "View and manage systemd timers and cron jobs",
+        "Icon": "chronometer",
+        "Name": "Scheduled Tasks"
+    },
+    "X-KDE-System-Settings-Parent-Category": "nsa-system-administration",
+    "X-KDE-Weight": 60
+}
