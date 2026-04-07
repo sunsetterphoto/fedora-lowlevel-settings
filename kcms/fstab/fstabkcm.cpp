@@ -219,6 +219,21 @@ void FstabKcm::addEntry(const QVariantMap &entry)
     setNeedsSave(true);
 }
 
+QString FstabKcm::fsTypeDescription(const QString &fstype) const
+{
+    static const QHash<QString, QString> descriptions = {
+        {QStringLiteral("ext4"), QStringLiteral("Standard Linux filesystem, good all-around performance")},
+        {QStringLiteral("btrfs"), QStringLiteral("Copy-on-write filesystem with snapshots and compression support")},
+        {QStringLiteral("xfs"), QStringLiteral("High-performance filesystem, excellent for large files")},
+        {QStringLiteral("vfat"), QStringLiteral("FAT32, for EFI system partition and USB drives")},
+        {QStringLiteral("ntfs"), QStringLiteral("Windows filesystem (read/write via ntfs3 driver)")},
+        {QStringLiteral("swap"), QStringLiteral("Swap space for virtual memory")},
+        {QStringLiteral("nfs"), QStringLiteral("Network filesystem for remote file access")},
+        {QStringLiteral("tmpfs"), QStringLiteral("RAM-based temporary filesystem")},
+    };
+    return descriptions.value(fstype);
+}
+
 K_PLUGIN_CLASS_WITH_JSON(FstabKcm, "kcm_nsa_fstab.json")
 
 #include "fstabkcm.moc"

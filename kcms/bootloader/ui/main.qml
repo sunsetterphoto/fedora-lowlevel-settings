@@ -32,10 +32,26 @@ KCMUtils.SimpleKCM {
                 onTextEdited: kcm.grubTimeout = text
             }
 
+            QQC2.Label {
+                text: "Time in seconds the boot menu is shown before auto-selecting the default entry. Set to 0 to skip the menu (boot immediately), -1 to wait indefinitely."
+                wrapMode: Text.WordWrap
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                opacity: 0.7
+                Layout.fillWidth: true
+            }
+
             QQC2.TextField {
                 Kirigami.FormData.label: "Default Entry:"
                 text: kcm.grubDefault
                 onTextEdited: kcm.grubDefault = text
+            }
+
+            QQC2.Label {
+                text: "Which entry to boot by default. Can be a number (0 = first entry), 'saved' (remembers last choice), or a menu entry title."
+                wrapMode: Text.WordWrap
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                opacity: 0.7
+                Layout.fillWidth: true
             }
 
             QQC2.ScrollView {
@@ -55,6 +71,14 @@ KCMUtils.SimpleKCM {
                 }
             }
 
+            QQC2.Label {
+                text: "Kernel parameters for the default boot entry only. Common values: 'quiet' (suppress boot messages), 'splash' (show boot splash), 'resume=...' (hibernation resume device), 'mitigations=off' (disable CPU vulnerability mitigations, faster but less secure)."
+                wrapMode: Text.WordWrap
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                opacity: 0.7
+                Layout.fillWidth: true
+            }
+
             QQC2.ScrollView {
                 Kirigami.FormData.label: "Kernel Parameters (ALL):"
                 Layout.fillWidth: true
@@ -70,6 +94,14 @@ KCMUtils.SimpleKCM {
                         }
                     }
                 }
+            }
+
+            QQC2.Label {
+                text: "Kernel parameters applied to ALL boot entries, including recovery mode. Use for critical settings that must always be active."
+                wrapMode: Text.WordWrap
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                opacity: 0.7
+                Layout.fillWidth: true
             }
         }
 
@@ -124,6 +156,10 @@ KCMUtils.SimpleKCM {
                             text: "Set as Default"
                             icon.name: "favorite"
                             onClicked: kcm.setDefaultKernel(modelData.version)
+
+                            QQC2.ToolTip.text: "Set this kernel as the default boot entry. The bootloader will automatically select it on next boot."
+                            QQC2.ToolTip.visible: hovered
+                            QQC2.ToolTip.delay: 500
                         }
                     }
                 }

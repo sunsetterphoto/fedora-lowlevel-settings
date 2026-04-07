@@ -21,6 +21,7 @@ public:
     Q_INVOKABLE void updateEntry(int index, const QVariantMap &entry);
     Q_INVOKABLE void removeEntry(int index);
     Q_INVOKABLE void addEntry(const QVariantMap &entry);
+    Q_INVOKABLE QString fsTypeDescription(const QString &fstype) const;
 
 public Q_SLOTS:
     void save() override;

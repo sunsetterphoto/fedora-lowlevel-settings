@@ -213,10 +213,26 @@ KCMUtils.ScrollViewKCM {
                 Layout.fillWidth: true
             }
 
+            QQC2.Label {
+                text: "Block device path or UUID. Using UUID= is recommended as it survives disk reordering."
+                wrapMode: Text.WordWrap
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                opacity: 0.7
+                Layout.fillWidth: true
+            }
+
             QQC2.TextField {
                 id: editMountpointField
                 Kirigami.FormData.label: "Mount Point:"
                 placeholderText: "/mnt/data"
+                Layout.fillWidth: true
+            }
+
+            QQC2.Label {
+                text: "Directory where the filesystem will be accessible. Use 'none' for swap."
+                wrapMode: Text.WordWrap
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                opacity: 0.7
                 Layout.fillWidth: true
             }
 
@@ -227,10 +243,27 @@ KCMUtils.ScrollViewKCM {
                 Layout.fillWidth: true
             }
 
+            QQC2.Label {
+                text: kcm.fsTypeDescription(editTypeCombo.currentText)
+                wrapMode: Text.WordWrap
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                opacity: 0.7
+                Layout.fillWidth: true
+                visible: text.length > 0
+            }
+
             QQC2.TextField {
                 id: editOptionsField
                 Kirigami.FormData.label: "Options:"
                 placeholderText: "defaults"
+                Layout.fillWidth: true
+            }
+
+            QQC2.Label {
+                text: "Common options: defaults, noatime (don't update access times, better performance), discard (enable TRIM for SSDs), compress=zstd (btrfs compression), nofail (don't fail boot if device missing), x-systemd.automount (mount on first access)"
+                wrapMode: Text.WordWrap
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                opacity: 0.7
                 Layout.fillWidth: true
             }
 
@@ -241,11 +274,27 @@ KCMUtils.ScrollViewKCM {
                 to: 1
             }
 
+            QQC2.Label {
+                text: "0 = don't backup with dump (default), 1 = include in dump backups (rarely used today)"
+                wrapMode: Text.WordWrap
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                opacity: 0.7
+                Layout.fillWidth: true
+            }
+
             QQC2.SpinBox {
                 id: editPassSpin
                 Kirigami.FormData.label: "Pass:"
                 from: 0
                 to: 2
+            }
+
+            QQC2.Label {
+                text: "0 = don't check with fsck, 1 = check first (root filesystem), 2 = check after root (other partitions)"
+                wrapMode: Text.WordWrap
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                opacity: 0.7
+                Layout.fillWidth: true
             }
 
             RowLayout {
