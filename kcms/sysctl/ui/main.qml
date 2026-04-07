@@ -45,62 +45,90 @@ KCMUtils.SimpleKCM {
             width: paramList.width
             highlighted: model.isModified
 
-            contentItem: RowLayout {
-                spacing: Kirigami.Units.smallSpacing
+            contentItem: ColumnLayout {
+                spacing: 2
 
-                // Key name (monospace, ~40% width)
-                QQC2.Label {
-                    text: model.key
-                    font.family: "monospace"
-                    elide: Text.ElideRight
-                    Layout.preferredWidth: paramList.width * 0.4
-                }
+                RowLayout {
+                    spacing: Kirigami.Units.smallSpacing
 
-                // Editable value field (~30% width)
-                QQC2.TextField {
-                    id: valueField
-                    text: model.isModified ? model.customValue : model.currentValue
-                    Layout.preferredWidth: paramList.width * 0.3
-                    Layout.fillWidth: true
-                    onEditingFinished: {
-                        if (text !== model.currentValue || model.isModified) {
-                            kcm.sysctlModel.setValue(model.key, text)
-                            kcm.needsSave = true
+                    // Key name with tooltip
+                    QQC2.Label {
+                        text: model.key
+                        font.family: "monospace"
+                        elide: Text.ElideRight
+                        Layout.preferredWidth: paramList.width * 0.35
+
+                        QQC2.ToolTip.text: model.description || model.key
+                        QQC2.ToolTip.visible: keyMouse.containsMouse && model.description !== ""
+                        QQC2.ToolTip.delay: 500
+
+                        MouseArea {
+                            id: keyMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            acceptedButtons: Qt.NoButton
                         }
                     }
-                }
 
-                // Category badge
-                QQC2.Label {
-                    text: model.category
-                    font.pointSize: Kirigami.Theme.smallFont.pointSize
-                    padding: Kirigami.Units.smallSpacing
-                    background: Rectangle {
-                        radius: 3
-                        color: {
-                            switch (model.category) {
-                            case "kernel": return Qt.rgba(0.20, 0.60, 0.86, 0.2);
-                            case "vm":     return Qt.rgba(0.61, 0.35, 0.71, 0.2);
-                            case "net":    return Qt.rgba(0.15, 0.68, 0.38, 0.2);
-                            case "fs":     return Qt.rgba(0.90, 0.49, 0.13, 0.2);
-                            case "dev":    return Qt.rgba(0.58, 0.65, 0.65, 0.2);
-                            default:       return Qt.rgba(0.50, 0.50, 0.50, 0.2);
+                    // Value field with allowed values as placeholder
+                    QQC2.TextField {
+                        id: valueField
+                        text: model.isModified ? model.customValue : model.currentValue
+                        placeholderText: model.allowedValues || ""
+                        Layout.preferredWidth: paramList.width * 0.3
+                        Layout.fillWidth: true
+                        onEditingFinished: {
+                            if (text !== model.currentValue || model.isModified) {
+                                kcm.sysctlModel.setValue(model.key, text)
+                                kcm.needsSave = true
                             }
                         }
                     }
-                    Layout.alignment: Qt.AlignVCenter
+
+                    // Category badge
+                    QQC2.Label {
+                        text: model.category
+                        font.pointSize: Kirigami.Theme.smallFont.pointSize
+                        padding: Kirigami.Units.smallSpacing
+                        background: Rectangle {
+                            radius: 3
+                            color: {
+                                switch (model.category) {
+                                case "kernel": return Qt.rgba(0.20, 0.60, 0.86, 0.2);
+                                case "vm":     return Qt.rgba(0.61, 0.35, 0.71, 0.2);
+                                case "net":    return Qt.rgba(0.15, 0.68, 0.38, 0.2);
+                                case "fs":     return Qt.rgba(0.90, 0.49, 0.13, 0.2);
+                                case "dev":    return Qt.rgba(0.58, 0.65, 0.65, 0.2);
+                                default:       return Qt.rgba(0.50, 0.50, 0.50, 0.2);
+                                }
+                            }
+                        }
+                        Layout.alignment: Qt.AlignVCenter
+                    }
+
+                    // Reset button (only visible when modified)
+                    QQC2.ToolButton {
+                        icon.name: "edit-clear"
+                        visible: model.isModified
+                        onClicked: {
+                            kcm.sysctlModel.resetValue(model.key)
+                            kcm.needsSave = true
+                        }
+                        QQC2.ToolTip.text: "Reset to default"
+                        QQC2.ToolTip.visible: hovered
+                    }
                 }
 
-                // Reset button (only visible when modified)
-                QQC2.ToolButton {
-                    icon.name: "edit-clear"
-                    visible: model.isModified
-                    onClicked: {
-                        kcm.sysctlModel.resetValue(model.key)
-                        kcm.needsSave = true
-                    }
-                    QQC2.ToolTip.text: "Reset to default"
-                    QQC2.ToolTip.visible: hovered
+                // Description row (only shown when description exists)
+                QQC2.Label {
+                    visible: model.description !== ""
+                    text: model.description
+                    wrapMode: Text.WordWrap
+                    font.pointSize: Kirigami.Theme.smallFont.pointSize
+                    opacity: 0.7
+                    Layout.fillWidth: true
+                    Layout.leftMargin: Kirigami.Units.smallSpacing
+                    Layout.rightMargin: Kirigami.Units.largeSpacing * 4
                 }
             }
         }

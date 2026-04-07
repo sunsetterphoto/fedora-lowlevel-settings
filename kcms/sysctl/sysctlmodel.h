@@ -16,6 +16,7 @@ struct SysctlParam {
     QString customValue;
     QString category;
     QString description;
+    QString allowedValues;
     bool isModified = false;
 };
 
@@ -33,6 +34,7 @@ public:
         CustomValueRole,
         CategoryRole,
         DescriptionRole,
+        AllowedValuesRole,
         IsModifiedRole,
     };
 
@@ -66,6 +68,7 @@ private:
     void loadFromProc();
     void loadCustomValues();
     void applyFilters();
+    static void populateHelpText(SysctlParam &param);
 
     QVector<SysctlParam> m_allParams;
     QVector<SysctlParam> m_filteredParams;
