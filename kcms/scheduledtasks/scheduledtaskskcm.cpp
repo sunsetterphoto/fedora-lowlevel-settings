@@ -218,30 +218,30 @@ void ScheduledTasksKcm::loadSystemCronJobs()
 
 void ScheduledTasksKcm::enableTimer(const QString &name)
 {
-    Fcse::DBusHelper::systemdCall(QStringLiteral("EnableUnitFiles"),
+    Fls::DBusHelper::systemdCall(QStringLiteral("EnableUnitFiles"),
         {QStringList{name}, false, true});
-    Fcse::DBusHelper::systemdCall(QStringLiteral("Reload"), {});
+    Fls::DBusHelper::systemdCall(QStringLiteral("Reload"), {});
     QTimer::singleShot(500, this, [this] { loadTimers(); });
 }
 
 void ScheduledTasksKcm::disableTimer(const QString &name)
 {
-    Fcse::DBusHelper::systemdCall(QStringLiteral("DisableUnitFiles"),
+    Fls::DBusHelper::systemdCall(QStringLiteral("DisableUnitFiles"),
         {QStringList{name}, false});
-    Fcse::DBusHelper::systemdCall(QStringLiteral("Reload"), {});
+    Fls::DBusHelper::systemdCall(QStringLiteral("Reload"), {});
     QTimer::singleShot(500, this, [this] { loadTimers(); });
 }
 
 void ScheduledTasksKcm::startTimer(const QString &name)
 {
-    Fcse::DBusHelper::systemdCall(QStringLiteral("StartUnit"),
+    Fls::DBusHelper::systemdCall(QStringLiteral("StartUnit"),
         {name, QStringLiteral("fail")});
     QTimer::singleShot(500, this, [this] { loadTimers(); });
 }
 
 void ScheduledTasksKcm::stopTimer(const QString &name)
 {
-    Fcse::DBusHelper::systemdCall(QStringLiteral("StopUnit"),
+    Fls::DBusHelper::systemdCall(QStringLiteral("StopUnit"),
         {name, QStringLiteral("fail")});
     QTimer::singleShot(500, this, [this] { loadTimers(); });
 }
@@ -266,6 +266,6 @@ void ScheduledTasksKcm::refresh()
     load();
 }
 
-K_PLUGIN_CLASS_WITH_JSON(ScheduledTasksKcm, "kcm_fcse_scheduledtasks.json")
+K_PLUGIN_CLASS_WITH_JSON(ScheduledTasksKcm, "kcm_fls_scheduledtasks.json")
 
 #include "scheduledtaskskcm.moc"

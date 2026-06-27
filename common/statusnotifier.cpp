@@ -2,11 +2,11 @@
 
 #include <KNotification>
 
-namespace Fcse {
+namespace Fls {
 
 static void notify(const QString &title, const QString &message, const QString &iconName)
 {
-    auto *notification = new KNotification(QStringLiteral("fcse"));
+    auto *notification = new KNotification(QStringLiteral("fls"));
     notification->setTitle(title);
     notification->setText(message);
     notification->setIconName(iconName);
@@ -15,17 +15,17 @@ static void notify(const QString &title, const QString &message, const QString &
 
 void StatusNotifier::success(const QString &message)
 {
-    notify(QStringLiteral("Fedora Core Setting Extension"), message, QStringLiteral("dialog-positive"));
+    notify(QStringLiteral("Fedora Lowlevel Settings"), message, QStringLiteral("dialog-positive"));
 }
 
 void StatusNotifier::error(const QString &message)
 {
-    notify(QStringLiteral("Fedora Core Setting Extension — Error"), message, QStringLiteral("dialog-error"));
+    notify(QStringLiteral("Fedora Lowlevel Settings — Error"), message, QStringLiteral("dialog-error"));
 }
 
 void StatusNotifier::warning(const QString &message)
 {
-    notify(QStringLiteral("Fedora Core Setting Extension — Warning"), message, QStringLiteral("dialog-warning"));
+    notify(QStringLiteral("Fedora Lowlevel Settings — Warning"), message, QStringLiteral("dialog-warning"));
 }
 
 void StatusNotifier::backupCreated(const QString &path)
@@ -35,4 +35,4 @@ void StatusNotifier::backupCreated(const QString &path)
            QStringLiteral("document-save"));
 }
 
-} // namespace Fcse
+} // namespace Fls

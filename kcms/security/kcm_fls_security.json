@@ -6,6 +6,6 @@
         "Name": "Security",
         "Name[de]": "Sicherheit"
     },
-    "X-KDE-System-Settings-Parent-Category": "fcse-system-administration",
+    "X-KDE-System-Settings-Parent-Category": "fls-system-administration",
     "X-KDE-Weight": 70
 }

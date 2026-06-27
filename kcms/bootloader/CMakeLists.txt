@@ -1,10 +1,10 @@
-kcmutils_add_qml_kcm(kcm_fcse_bootloader
+kcmutils_add_qml_kcm(kcm_fls_bootloader
     SOURCES
         bootloaderkcm.cpp bootloaderkcm.h
 )
 
-target_link_libraries(kcm_fcse_bootloader PRIVATE
-    fcse-common
+target_link_libraries(kcm_fls_bootloader PRIVATE
+    fls-common
     KF6::KCMUtils
     KF6::I18n
     KF6::CoreAddons

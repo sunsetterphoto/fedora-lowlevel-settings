@@ -200,7 +200,7 @@ KCMUtils.SimpleKCM {
                     width: parent.width - (Kirigami.Units.largeSpacing * 4)
                     visible: userList.count === 0
                     text: "No user environment variables"
-                    explanation: "No variables in ~/.config/environment.d/fcse.conf"
+                    explanation: "No variables in ~/.config/environment.d/fls.conf"
                 }
             }
 

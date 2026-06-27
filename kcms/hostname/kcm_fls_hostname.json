@@ -6,6 +6,6 @@
         "Name": "Hostname & Network",
         "Name[de]": "Hostname & Netzwerk"
     },
-    "X-KDE-System-Settings-Parent-Category": "fcse-system-administration",
+    "X-KDE-System-Settings-Parent-Category": "fls-system-administration",
     "X-KDE-Weight": 90
 }

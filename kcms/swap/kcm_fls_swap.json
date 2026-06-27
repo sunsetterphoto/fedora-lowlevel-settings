@@ -6,6 +6,6 @@
         "Name": "Swap & zram",
         "Name[de]": "Swap & zram"
     },
-    "X-KDE-System-Settings-Parent-Category": "fcse-system-administration",
+    "X-KDE-System-Settings-Parent-Category": "fls-system-administration",
     "X-KDE-Weight": 110
 }

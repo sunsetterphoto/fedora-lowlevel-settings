@@ -4,7 +4,7 @@
 #include <QFile>
 #include <QFileInfo>
 
-namespace Fcse {
+namespace Fls {
 
 bool BackupManager::ensureBackupDir()
 {
@@ -111,4 +111,4 @@ void BackupManager::rotate(const QString &originalFilePath)
     }
 }
 
-} // namespace Fcse
+} // namespace Fls

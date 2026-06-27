@@ -15,7 +15,7 @@ SwapKcm::SwapKcm(QObject *parent, const KPluginMetaData &metaData)
     : KQuickConfigModule(parent, metaData)
 {
     setButtons(Apply | Default);
-    setAuthActionName(QStringLiteral("org.kde.fcse.write"));
+    setAuthActionName(QStringLiteral("org.kde.fls.write"));
     load();
 }
 
@@ -126,11 +126,11 @@ void SwapKcm::loadSwapEntries()
 void SwapKcm::loadZramConfig()
 {
     // Try /etc first, then fall back to /usr/lib
-    auto sections = Fcse::ConfigParser::parseIni(
+    auto sections = Fls::ConfigParser::parseIni(
         QStringLiteral("/etc/systemd/zram-generator.conf"));
 
     if (sections.isEmpty()) {
-        sections = Fcse::ConfigParser::parseIni(
+        sections = Fls::ConfigParser::parseIni(
             QStringLiteral("/usr/lib/systemd/zram-generator.conf"));
     }
 
@@ -273,8 +273,8 @@ void SwapKcm::save()
     args[QStringLiteral("filePath")] = QStringLiteral("/etc/systemd/zram-generator.conf");
     args[QStringLiteral("content")] = content.toUtf8();
 
-    KAuth::Action action(QStringLiteral("org.kde.fcse.write"));
-    action.setHelperId(QStringLiteral("org.kde.fcse"));
+    KAuth::Action action(QStringLiteral("org.kde.fls.write"));
+    action.setHelperId(QStringLiteral("org.kde.fls"));
     action.setArguments(args);
 
     KAuth::ExecuteJob *job = action.execute();
@@ -290,6 +290,6 @@ void SwapKcm::save()
     job->start();
 }
 
-K_PLUGIN_CLASS_WITH_JSON(SwapKcm, "kcm_fcse_swap.json")
+K_PLUGIN_CLASS_WITH_JSON(SwapKcm, "kcm_fls_swap.json")
 
 #include "swapkcm.moc"

@@ -1,28 +1,28 @@
 [Domain]
-Name=Fedora Core Setting Extension
+Name=Fedora Lowlevel Settings
 Icon=preferences-system
 
-[org.kde.fcse.write]
+[org.kde.fls.write]
 Name=Write system configuration
 Description=Write a system configuration file with automatic backup
 Policy=auth_admin
 
-[org.kde.fcse.read]
+[org.kde.fls.read]
 Name=Read protected files
 Description=Read system files that require elevated privileges
 Policy=auth_admin
 
-[org.kde.fcse.execute]
+[org.kde.fls.execute]
 Name=Execute system command
 Description=Run a whitelisted system administration command
 Policy=auth_admin
 
-[org.kde.fcse.backup]
+[org.kde.fls.backup]
 Name=Create configuration backup
 Description=Backup a system configuration file
 Policy=auth_admin
 
-[org.kde.fcse.restore]
+[org.kde.fls.restore]
 Name=Restore configuration backup
 Description=Restore a previously backed up configuration file
 Policy=auth_admin

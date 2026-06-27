@@ -43,7 +43,7 @@ void DnfReposKcm::load()
 
     for (const QString &filename : repoFiles) {
         const QString filePath = repoDir.absoluteFilePath(filename);
-        const auto sections = Fcse::ConfigParser::parseIni(filePath);
+        const auto sections = Fls::ConfigParser::parseIni(filePath);
 
         for (auto it = sections.constBegin(); it != sections.constEnd(); ++it) {
             const QString &repoId = it.key();
@@ -103,7 +103,7 @@ void DnfReposKcm::toggleRepo(const QString &filename, const QString &repoId, boo
     const QString filePath = QStringLiteral("/etc/yum.repos.d/") + filename;
 
     // Read the entire .repo file, modify the relevant section, write back
-    auto sections = Fcse::ConfigParser::parseIni(filePath);
+    auto sections = Fls::ConfigParser::parseIni(filePath);
 
     if (!sections.contains(repoId)) {
         qWarning() << "Repo section" << repoId << "not found in" << filePath;
@@ -132,8 +132,8 @@ void DnfReposKcm::toggleRepo(const QString &filename, const QString &repoId, boo
     args[QStringLiteral("filePath")] = filePath;
     args[QStringLiteral("content")] = content.toUtf8();
 
-    KAuth::Action action(QStringLiteral("org.kde.fcse.write"));
-    action.setHelperId(QStringLiteral("org.kde.fcse"));
+    KAuth::Action action(QStringLiteral("org.kde.fls.write"));
+    action.setHelperId(QStringLiteral("org.kde.fls"));
     action.setArguments(args);
 
     KAuth::ExecuteJob *job = action.execute();
@@ -162,8 +162,8 @@ void DnfReposKcm::addCoprRepo(const QString &project)
         QStringLiteral("-y")
     };
 
-    KAuth::Action action(QStringLiteral("org.kde.fcse.execute"));
-    action.setHelperId(QStringLiteral("org.kde.fcse"));
+    KAuth::Action action(QStringLiteral("org.kde.fls.execute"));
+    action.setHelperId(QStringLiteral("org.kde.fls"));
     action.setArguments(args);
 
     KAuth::ExecuteJob *job = action.execute();
@@ -199,8 +199,8 @@ void DnfReposKcm::removeCoprRepo(const QString &project)
         QStringLiteral("-y")
     };
 
-    KAuth::Action action(QStringLiteral("org.kde.fcse.execute"));
-    action.setHelperId(QStringLiteral("org.kde.fcse"));
+    KAuth::Action action(QStringLiteral("org.kde.fls.execute"));
+    action.setHelperId(QStringLiteral("org.kde.fls"));
     action.setArguments(args);
 
     KAuth::ExecuteJob *job = action.execute();
@@ -227,8 +227,8 @@ void DnfReposKcm::refreshCache()
     args[QStringLiteral("command")] = QStringLiteral("/usr/bin/dnf5");
     args[QStringLiteral("args")] = QStringList{QStringLiteral("makecache")};
 
-    KAuth::Action action(QStringLiteral("org.kde.fcse.execute"));
-    action.setHelperId(QStringLiteral("org.kde.fcse"));
+    KAuth::Action action(QStringLiteral("org.kde.fls.execute"));
+    action.setHelperId(QStringLiteral("org.kde.fls"));
     action.setArguments(args);
 
     KAuth::ExecuteJob *job = action.execute();
@@ -253,6 +253,6 @@ void DnfReposKcm::refresh()
     load();
 }
 
-K_PLUGIN_CLASS_WITH_JSON(DnfReposKcm, "kcm_fcse_dnfrepos.json")
+K_PLUGIN_CLASS_WITH_JSON(DnfReposKcm, "kcm_fls_dnfrepos.json")
 
 #include "dnfreposkcm.moc"

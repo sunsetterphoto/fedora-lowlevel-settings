@@ -6,7 +6,7 @@
 #include <QDBusPendingCall>
 #include <QVariantList>
 
-namespace Fcse {
+namespace Fls {
 
 class DBusHelper {
 public:
@@ -32,4 +32,4 @@ public:
     static QDBusPendingCall hostname1Call(const QString &method, const QVariantList &args = {});
 };
 
-} // namespace Fcse
+} // namespace Fls

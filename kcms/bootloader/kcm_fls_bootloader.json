@@ -6,6 +6,6 @@
         "Name": "Bootloader",
         "Name[de]": "Bootloader"
     },
-    "X-KDE-System-Settings-Parent-Category": "fcse-system-administration",
+    "X-KDE-System-Settings-Parent-Category": "fls-system-administration",
     "X-KDE-Weight": 30
 }

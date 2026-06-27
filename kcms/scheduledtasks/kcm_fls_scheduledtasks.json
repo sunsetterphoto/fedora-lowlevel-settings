@@ -6,6 +6,6 @@
         "Name": "Scheduled Tasks",
         "Name[de]": "Geplante Aufgaben"
     },
-    "X-KDE-System-Settings-Parent-Category": "fcse-system-administration",
+    "X-KDE-System-Settings-Parent-Category": "fls-system-administration",
     "X-KDE-Weight": 60
 }

@@ -1,6 +1,6 @@
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-add_library(fcse-common STATIC
+add_library(fls-common STATIC
     backupmanager.cpp
     backupmanager.h
     dbushelper.cpp
@@ -11,11 +11,11 @@ add_library(fcse-common STATIC
     statusnotifier.h
 )
 
-target_link_libraries(fcse-common PUBLIC
+target_link_libraries(fls-common PUBLIC
     Qt6::Core
     Qt6::DBus
     KF6::CoreAddons
     KF6::Notifications
 )
 
-target_include_directories(fcse-common PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(fls-common PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

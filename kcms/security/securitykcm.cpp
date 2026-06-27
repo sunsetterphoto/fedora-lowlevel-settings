@@ -39,8 +39,8 @@ void SecurityKcm::loadSudoersFiles()
 {
     m_sudoersFiles.clear();
 
-    KAuth::Action action(QStringLiteral("org.kde.fcse.read"));
-    action.setHelperId(QStringLiteral("org.kde.fcse"));
+    KAuth::Action action(QStringLiteral("org.kde.fls.read"));
+    action.setHelperId(QStringLiteral("org.kde.fls"));
 
     QVariantMap args;
     args[QStringLiteral("dirPath")] = QStringLiteral("/etc/sudoers.d/");
@@ -85,8 +85,8 @@ void SecurityKcm::saveSudoersFile(const QString &filename, const QString &conten
     args[QStringLiteral("content")] = content.toUtf8();
     args[QStringLiteral("validateAsSudoers")] = true;
 
-    KAuth::Action action(QStringLiteral("org.kde.fcse.write"));
-    action.setHelperId(QStringLiteral("org.kde.fcse"));
+    KAuth::Action action(QStringLiteral("org.kde.fls.write"));
+    action.setHelperId(QStringLiteral("org.kde.fls"));
     action.setArguments(args);
 
     KAuth::ExecuteJob *job = action.execute();
@@ -111,11 +111,11 @@ void SecurityKcm::deleteSudoersFile(const QString &filename)
 
     QVariantMap args;
     args[QStringLiteral("filePath")] = QString(QStringLiteral("/etc/sudoers.d/") + filename);
-    args[QStringLiteral("content")] = QByteArray("# Removed by Fedora Core Setting Extension\n");
+    args[QStringLiteral("content")] = QByteArray("# Removed by Fedora Lowlevel Settings\n");
     args[QStringLiteral("validateAsSudoers")] = true;
 
-    KAuth::Action action(QStringLiteral("org.kde.fcse.write"));
-    action.setHelperId(QStringLiteral("org.kde.fcse"));
+    KAuth::Action action(QStringLiteral("org.kde.fls.write"));
+    action.setHelperId(QStringLiteral("org.kde.fls"));
     action.setArguments(args);
 
     KAuth::ExecuteJob *job = action.execute();
@@ -193,8 +193,8 @@ void SecurityKcm::setSelinuxMode(const QString &mode)
     args[QStringLiteral("command")] = QStringLiteral("/usr/sbin/setenforce");
     args[QStringLiteral("args")] = QStringList{arg};
 
-    KAuth::Action action(QStringLiteral("org.kde.fcse.execute"));
-    action.setHelperId(QStringLiteral("org.kde.fcse"));
+    KAuth::Action action(QStringLiteral("org.kde.fls.execute"));
+    action.setHelperId(QStringLiteral("org.kde.fls"));
     action.setArguments(args);
 
     KAuth::ExecuteJob *job = action.execute();
@@ -217,8 +217,8 @@ void SecurityKcm::setSelinuxBool(const QString &name, bool value)
         value ? QStringLiteral("on") : QStringLiteral("off")
     };
 
-    KAuth::Action action(QStringLiteral("org.kde.fcse.execute"));
-    action.setHelperId(QStringLiteral("org.kde.fcse"));
+    KAuth::Action action(QStringLiteral("org.kde.fls.execute"));
+    action.setHelperId(QStringLiteral("org.kde.fls"));
     action.setArguments(args);
 
     KAuth::ExecuteJob *job = action.execute();
@@ -300,6 +300,6 @@ void SecurityKcm::loadPolkitActions()
     Q_EMIT polkitActionsChanged();
 }
 
-K_PLUGIN_CLASS_WITH_JSON(SecurityKcm, "kcm_fcse_security.json")
+K_PLUGIN_CLASS_WITH_JSON(SecurityKcm, "kcm_fls_security.json")
 
 #include "securitykcm.moc"

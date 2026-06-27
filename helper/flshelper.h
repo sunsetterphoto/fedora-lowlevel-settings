@@ -6,7 +6,7 @@
 
 using namespace KAuth;
 
-class FcseHelper : public QObject
+class FlsHelper : public QObject
 {
     Q_OBJECT
 

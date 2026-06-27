@@ -12,6 +12,6 @@ JournalKcm::JournalKcm(QObject *parent, const KPluginMetaData &metaData)
     setButtons(NoAdditionalButton);
 }
 
-K_PLUGIN_CLASS_WITH_JSON(JournalKcm, "kcm_fcse_journal.json")
+K_PLUGIN_CLASS_WITH_JSON(JournalKcm, "kcm_fls_journal.json")
 
 #include "journalkcm.moc"

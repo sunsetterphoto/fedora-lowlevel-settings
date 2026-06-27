@@ -5,7 +5,7 @@
 #include <QString>
 #include <QStringList>
 
-namespace Fcse {
+namespace Fls {
 
 struct HostsEntry {
     QString ip;
@@ -46,4 +46,4 @@ public:
     static bool writeIni(const QString &filePath, const QMap<QString, QMap<QString, QString>> &sections);
 };
 
-} // namespace Fcse
+} // namespace Fls

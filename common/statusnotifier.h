@@ -2,7 +2,7 @@
 
 #include <QString>
 
-namespace Fcse {
+namespace Fls {
 
 class StatusNotifier {
 public:
@@ -12,4 +12,4 @@ public:
     static void backupCreated(const QString &path);
 };
 
-} // namespace Fcse
+} // namespace Fls
