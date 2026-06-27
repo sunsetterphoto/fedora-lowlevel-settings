@@ -119,6 +119,20 @@ private Q_SLOTS:
             {QStringLiteral("-P"), QStringLiteral("httpd_can_network_connect\n"), QStringLiteral("on")}));
     }
 
+    void testExecRejectsLeadingDash()
+    {
+        QVERIFY(!isExecAllowed(QStringLiteral("/usr/sbin/modprobe"), {QStringLiteral("-r")}));
+        QVERIFY(!isExecAllowed(QStringLiteral("/usr/sbin/rmmod"), {QStringLiteral("--all")}));
+        QVERIFY(!isExecAllowed(QStringLiteral("/usr/sbin/setsebool"),
+            {QStringLiteral("-P"), QStringLiteral("-X"), QStringLiteral("on")}));
+        QVERIFY(!isExecAllowed(QStringLiteral("/usr/bin/dnf5"),
+            {QStringLiteral("copr"), QStringLiteral("enable"), QStringLiteral("--hub=evil"), QStringLiteral("-y")}));
+        // Internal dash is still legitimate:
+        QVERIFY(isExecAllowed(QStringLiteral("/usr/sbin/modprobe"), {QStringLiteral("snd-hda-intel")}));
+        QVERIFY(isExecAllowed(QStringLiteral("/usr/bin/dnf5"),
+            {QStringLiteral("copr"), QStringLiteral("enable"), QStringLiteral("user/my-project"), QStringLiteral("-y")}));
+    }
+
     void testPostCommandFor()
     {
         const auto grub = postCommandFor(QStringLiteral("/etc/default/grub"));

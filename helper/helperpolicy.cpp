@@ -46,13 +46,13 @@ bool matchesWrite(const QString &canonical, const PathRule &rule)
 
 bool isModuleName(const QString &s)
 {
-    static const QRegularExpression re(QStringLiteral("\\A[A-Za-z0-9._-]+\\z"));
+    static const QRegularExpression re(QStringLiteral("\\A[A-Za-z0-9._][A-Za-z0-9._-]*\\z"));
     return re.match(s).hasMatch();
 }
 
 bool isCoprProject(const QString &s)
 {
-    static const QRegularExpression re(QStringLiteral("\\A[A-Za-z0-9._@/-]+\\z"));
+    static const QRegularExpression re(QStringLiteral("\\A[A-Za-z0-9._@/][A-Za-z0-9._@/-]*\\z"));
     return re.match(s).hasMatch();
 }
 
