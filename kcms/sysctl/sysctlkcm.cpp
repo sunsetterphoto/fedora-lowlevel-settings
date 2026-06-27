@@ -32,8 +32,6 @@ void SysctlKcm::save()
     QVariantMap args;
     args[QStringLiteral("filePath")] = QStringLiteral("/etc/sysctl.d/99-fls.conf");
     args[QStringLiteral("content")] = content.toUtf8();
-    args[QStringLiteral("postCommand")] = QStringLiteral("/usr/sbin/sysctl");
-    args[QStringLiteral("postArgs")] = QStringList{QStringLiteral("--system")};
 
     KAuth::Action action(QStringLiteral("org.kde.fls.write"));
     action.setHelperId(QStringLiteral("org.kde.fls"));

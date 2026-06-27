@@ -197,8 +197,6 @@ void BootloaderKcm::saveGrubDefaults()
     QVariantMap args;
     args[QStringLiteral("filePath")] = QStringLiteral("/etc/default/grub");
     args[QStringLiteral("content")] = content.toUtf8();
-    args[QStringLiteral("postCommand")] = QStringLiteral("/usr/sbin/grub2-mkconfig");
-    args[QStringLiteral("postArgs")] = QStringList{QStringLiteral("-o"), QStringLiteral("/boot/grub2/grub.cfg")};
 
     KAuth::Action action(QStringLiteral("org.kde.fls.write"));
     action.setHelperId(QStringLiteral("org.kde.fls"));

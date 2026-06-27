@@ -285,8 +285,6 @@ void HostnameKcm::saveResolvedConf()
     QVariantMap args;
     args[QStringLiteral("filePath")] = QStringLiteral("/etc/systemd/resolved.conf");
     args[QStringLiteral("content")] = content.toUtf8();
-    args[QStringLiteral("postCommand")] = QStringLiteral("/usr/bin/systemctl");
-    args[QStringLiteral("postArgs")] = QStringList{QStringLiteral("restart"), QStringLiteral("systemd-resolved")};
 
     KAuth::Action action(QStringLiteral("org.kde.fls.write"));
     action.setHelperId(QStringLiteral("org.kde.fls"));

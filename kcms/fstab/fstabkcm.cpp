@@ -141,8 +141,6 @@ void FstabKcm::save()
     QVariantMap args;
     args[QStringLiteral("filePath")] = QStringLiteral("/etc/fstab");
     args[QStringLiteral("content")] = content.toUtf8();
-    args[QStringLiteral("postCommand")] = QStringLiteral("/usr/bin/systemctl");
-    args[QStringLiteral("postArgs")] = QStringList{QStringLiteral("daemon-reload")};
 
     KAuth::Action action(QStringLiteral("org.kde.fls.write"));
     action.setHelperId(QStringLiteral("org.kde.fls"));
