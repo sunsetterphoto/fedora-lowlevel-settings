@@ -1,5 +1,6 @@
 #include "flshelper.h"
 #include "backupmanager.h"
+#include "helperpolicy.h"
 
 #include <QDir>
 #include <QFile>
@@ -8,55 +9,6 @@
 #include <QTemporaryFile>
 
 using namespace Fls;
-
-// ---- Path / command whitelists ----
-
-static const QStringList allowedPathPrefixes = {
-    QStringLiteral("/etc/sysctl.d/"),
-    QStringLiteral("/etc/default/grub"),
-    QStringLiteral("/etc/fstab"),
-    QStringLiteral("/etc/modprobe.d/"),
-    QStringLiteral("/etc/cron.d/"),
-    QStringLiteral("/etc/sudoers.d/"),
-    QStringLiteral("/etc/selinux/config"),
-    QStringLiteral("/etc/yum.repos.d/"),
-    QStringLiteral("/etc/hosts"),
-    QStringLiteral("/etc/environment"),
-    QStringLiteral("/etc/profile.d/"),
-    QStringLiteral("/etc/systemd/resolved.conf"),
-    QStringLiteral("/etc/systemd/zram-generator.conf"),
-    QStringLiteral("/boot/loader/entries/"),
-};
-
-static const QStringList allowedCommands = {
-    QStringLiteral("/usr/sbin/sysctl"),
-    QStringLiteral("/usr/sbin/grub2-mkconfig"),
-    QStringLiteral("/usr/sbin/grubby"),
-    QStringLiteral("/usr/sbin/modprobe"),
-    QStringLiteral("/usr/sbin/rmmod"),
-    QStringLiteral("/usr/sbin/depmod"),
-    QStringLiteral("/usr/sbin/setenforce"),
-    QStringLiteral("/usr/sbin/setsebool"),
-    QStringLiteral("/usr/bin/systemctl"),
-    QStringLiteral("/usr/bin/dnf5"),
-    QStringLiteral("/usr/bin/findmnt"),
-};
-
-static bool isPathAllowed(const QString &path)
-{
-    const QString canonical = QFileInfo(path).absoluteFilePath();
-    for (const auto &prefix : allowedPathPrefixes) {
-        if (canonical.startsWith(prefix)) {
-            return true;
-        }
-    }
-    return false;
-}
-
-static bool isCommandAllowed(const QString &command)
-{
-    return allowedCommands.contains(command);
-}
 
 // ---- Private helpers ----
 
@@ -99,14 +51,8 @@ ActionReply FlsHelper::writeFileWithBackup(const QString &filePath, const QByteA
     return reply;
 }
 
-ActionReply FlsHelper::runCommand(const QString &command, const QStringList &args)
+ActionReply FlsHelper::runProcess(const QString &command, const QStringList &args)
 {
-    if (!isCommandAllowed(command)) {
-        auto reply = ActionReply::HelperErrorReply();
-        reply.setErrorDescription(QStringLiteral("Command not in whitelist: %1").arg(command));
-        return reply;
-    }
-
     QProcess proc;
     proc.start(command, args);
     if (!proc.waitForFinished(30000)) {
@@ -122,14 +68,22 @@ ActionReply FlsHelper::runCommand(const QString &command, const QStringList &arg
     return reply;
 }
 
+ActionReply FlsHelper::runCommand(const QString &command, const QStringList &args)
+{
+    if (!Fls::Policy::isExecAllowed(command, args)) {
+        auto reply = ActionReply::HelperErrorReply();
+        reply.setErrorDescription(QStringLiteral("Command not permitted: %1").arg(command));
+        return reply;
+    }
+    return runProcess(command, args);
+}
+
 // ---- Public action slots ----
 
 ActionReply FlsHelper::write(const QVariantMap &args)
 {
     const QString filePath = args.value(QStringLiteral("filePath")).toString();
     const QByteArray content = args.value(QStringLiteral("content")).toByteArray();
-    const QString postCommand = args.value(QStringLiteral("postCommand")).toString();
-    const QStringList postArgs = args.value(QStringLiteral("postArgs")).toStringList();
     const bool validateAsSudoers = args.value(QStringLiteral("validateAsSudoers"), false).toBool();
 
     if (filePath.isEmpty() || content.isEmpty()) {
@@ -138,7 +92,8 @@ ActionReply FlsHelper::write(const QVariantMap &args)
         return reply;
     }
 
-    if (!isPathAllowed(filePath)) {
+    const QString canonical = Fls::Policy::canonicalize(filePath);
+    if (canonical.isEmpty() || !Fls::Policy::isWritePathAllowed(filePath)) {
         auto reply = ActionReply::HelperErrorReply();
         reply.setErrorDescription(QStringLiteral("Path not in whitelist: %1").arg(filePath));
         return reply;
@@ -162,31 +117,31 @@ ActionReply FlsHelper::write(const QVariantMap &args)
         }
     }
 
-    // Write with automatic backup
-    ActionReply writeReply = writeFileWithBackup(filePath, content);
+    // Write to the canonical (symlink-resolved) path, with automatic backup.
+    ActionReply writeReply = writeFileWithBackup(canonical, content);
     if (writeReply.failed()) {
         return writeReply;
     }
 
-    // Run post-command if specified
-    if (!postCommand.isEmpty()) {
-        ActionReply cmdReply = runCommand(postCommand, postArgs);
+    // Post-command is derived server-side from the validated path; callers
+    // cannot choose it.
+    const auto post = Fls::Policy::postCommandFor(canonical);
+    if (post.has_value()) {
+        ActionReply cmdReply = runProcess(post->binary, post->args);
         if (cmdReply.failed() || cmdReply.data().value(QStringLiteral("exitCode")).toInt() != 0) {
-            // Post-command failed -- restore from backup
             const QString backupPath = writeReply.data().value(QStringLiteral("backupPath")).toString();
             if (!backupPath.isEmpty()) {
-                BackupManager::restore(backupPath, filePath);
+                BackupManager::restore(backupPath, canonical);
             }
 
             auto reply = ActionReply::HelperErrorReply();
             const QString stderr = cmdReply.data().value(QStringLiteral("stderr")).toString();
             reply.setErrorDescription(
                 QStringLiteral("Post-command failed (%1), restored backup. stderr: %2")
-                    .arg(postCommand, stderr));
+                    .arg(post->binary, stderr));
             return reply;
         }
 
-        // Merge post-command output into the success reply
         writeReply.addData(QStringLiteral("postStdout"), cmdReply.data().value(QStringLiteral("stdout")));
         writeReply.addData(QStringLiteral("postStderr"), cmdReply.data().value(QStringLiteral("stderr")));
     }
@@ -207,7 +162,12 @@ ActionReply FlsHelper::read(const QVariantMap &args)
 
     // Single file read
     if (!filePath.isEmpty()) {
-        QFile file(filePath);
+        if (!Fls::Policy::isReadFileAllowed(filePath)) {
+            auto reply = ActionReply::HelperErrorReply();
+            reply.setErrorDescription(QStringLiteral("Read path not in whitelist: %1").arg(filePath));
+            return reply;
+        }
+        QFile file(Fls::Policy::canonicalize(filePath));
         if (!file.open(QIODevice::ReadOnly)) {
             auto reply = ActionReply::HelperErrorReply();
             reply.setErrorDescription(QStringLiteral("Failed to read %1: %2").arg(filePath, file.errorString()));
@@ -220,7 +180,13 @@ ActionReply FlsHelper::read(const QVariantMap &args)
     }
 
     // Directory read -- return map of filename -> content
-    QDir dir(dirPath);
+    if (!Fls::Policy::isReadDirAllowed(dirPath)) {
+        auto reply = ActionReply::HelperErrorReply();
+        reply.setErrorDescription(QStringLiteral("Read directory not in whitelist: %1").arg(dirPath));
+        return reply;
+    }
+
+    QDir dir(Fls::Policy::canonicalize(dirPath));
     if (!dir.exists()) {
         auto reply = ActionReply::HelperErrorReply();
         reply.setErrorDescription(QStringLiteral("Directory does not exist: %1").arg(dirPath));

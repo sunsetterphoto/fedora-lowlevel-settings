@@ -19,6 +19,7 @@ public Q_SLOTS:
 
 private:
     ActionReply writeFileWithBackup(const QString &filePath, const QByteArray &content);
+    ActionReply runProcess(const QString &command, const QStringList &args);
     ActionReply runCommand(const QString &command, const QStringList &args);
     bool validateSudoers(const QString &tempPath);
 };
