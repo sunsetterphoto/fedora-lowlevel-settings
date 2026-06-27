@@ -46,19 +46,19 @@ bool matchesWrite(const QString &canonical, const PathRule &rule)
 
 bool isModuleName(const QString &s)
 {
-    static const QRegularExpression re(QStringLiteral("^[A-Za-z0-9._-]+$"));
+    static const QRegularExpression re(QStringLiteral("\\A[A-Za-z0-9._-]+\\z"));
     return re.match(s).hasMatch();
 }
 
 bool isCoprProject(const QString &s)
 {
-    static const QRegularExpression re(QStringLiteral("^[A-Za-z0-9._@/-]+$"));
+    static const QRegularExpression re(QStringLiteral("\\A[A-Za-z0-9._@/-]+\\z"));
     return re.match(s).hasMatch();
 }
 
 bool isKernelImage(const QString &s)
 {
-    static const QRegularExpression re(QStringLiteral("^/boot/vmlinuz-[A-Za-z0-9._+-]+$"));
+    static const QRegularExpression re(QStringLiteral("\\A/boot/vmlinuz-[A-Za-z0-9._+-]+\\z"));
     return re.match(s).hasMatch();
 }
 

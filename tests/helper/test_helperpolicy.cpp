@@ -105,6 +105,20 @@ private Q_SLOTS:
         QVERIFY(!isExecAllowed(QStringLiteral("/bin/sh"), {QStringLiteral("-c"), QStringLiteral("evil")}));
     }
 
+    void testExecRejectsTrailingNewline()
+    {
+        QVERIFY(!isExecAllowed(QStringLiteral("/usr/sbin/modprobe"),
+            {QStringLiteral("kvm_intel\n")}));
+        QVERIFY(!isExecAllowed(QStringLiteral("/usr/sbin/rmmod"),
+            {QStringLiteral("pcspkr\n")}));
+        QVERIFY(!isExecAllowed(QStringLiteral("/usr/bin/dnf5"),
+            {QStringLiteral("copr"), QStringLiteral("enable"), QStringLiteral("user/project\n"), QStringLiteral("-y")}));
+        QVERIFY(!isExecAllowed(QStringLiteral("/usr/sbin/grubby"),
+            {QStringLiteral("--set-default"), QStringLiteral("/boot/vmlinuz-6.14.0\n")}));
+        QVERIFY(!isExecAllowed(QStringLiteral("/usr/sbin/setsebool"),
+            {QStringLiteral("-P"), QStringLiteral("httpd_can_network_connect\n"), QStringLiteral("on")}));
+    }
+
     void testPostCommandFor()
     {
         const auto grub = postCommandFor(QStringLiteral("/etc/default/grub"));
