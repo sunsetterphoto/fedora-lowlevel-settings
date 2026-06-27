@@ -156,6 +156,29 @@ private Q_SLOTS:
 
         QVERIFY(!postCommandFor(QStringLiteral("/etc/hosts")).has_value());
     }
+
+    void testWriteTargetCanonicalDirectChildOnly()
+    {
+        QVERIFY(isWriteTargetCanonical(QStringLiteral("/etc/sysctl.d/99-fls.conf")));
+        QVERIFY(isWriteTargetCanonical(QStringLiteral("/etc/sudoers.d/myrule")));
+        QVERIFY(isWriteTargetCanonical(QStringLiteral("/etc/fstab")));        // exact file
+        QVERIFY(!isWriteTargetCanonical(QStringLiteral("/etc/sysctl.d/sub/x"))); // nested, not direct child
+        QVERIFY(!isWriteTargetCanonical(QStringLiteral("/etc/sysctl.d")));    // dir itself
+        QVERIFY(!isWriteTargetCanonical(QStringLiteral("/etc/shadow")));
+    }
+
+    void testWriteRejectsSymlinkedParentEscape()
+    {
+        QTemporaryDir tmp;
+        QVERIFY(tmp.isValid());
+        const QString outside = tmp.path() + QStringLiteral("/outside");
+        QVERIFY(QDir().mkpath(outside));
+        const QString link = tmp.path() + QStringLiteral("/link");
+        QVERIFY(QFile::link(outside, link)); // link -> outside (not under any whitelist dir)
+        const QString canon = canonicalize(link + QStringLiteral("/evil.conf"));
+        QVERIFY(!canon.isEmpty());            // parent resolves through the symlink
+        QVERIFY(!isWriteTargetCanonical(canon)); // ...but the real location is outside the whitelist
+    }
 };
 
 QTEST_MAIN(TestHelperPolicy)

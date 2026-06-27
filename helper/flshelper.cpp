@@ -93,7 +93,7 @@ ActionReply FlsHelper::write(const QVariantMap &args)
     }
 
     const QString canonical = Fls::Policy::canonicalize(filePath);
-    if (canonical.isEmpty() || !Fls::Policy::isWritePathAllowed(filePath)) {
+    if (canonical.isEmpty() || !Fls::Policy::isWriteTargetCanonical(canonical)) {
         auto reply = ActionReply::HelperErrorReply();
         reply.setErrorDescription(QStringLiteral("Path not in whitelist: %1").arg(filePath));
         return reply;

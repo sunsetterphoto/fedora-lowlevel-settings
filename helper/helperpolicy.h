@@ -27,6 +27,10 @@ QString canonicalize(const QString &path);
 // True iff `path` canonicalizes to an allowed write target.
 bool isWritePathAllowed(const QString &path);
 
+// Like isWritePathAllowed but takes an ALREADY-canonical path (does not
+// re-resolve). Validate the exact string you will operate on.
+bool isWriteTargetCanonical(const QString &canonicalPath);
+
 // True iff `dirPath` canonicalizes to exactly an allowed read directory.
 bool isReadDirAllowed(const QString &dirPath);
 

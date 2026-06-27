@@ -40,8 +40,13 @@ bool matchesWrite(const QString &canonical, const PathRule &rule)
     if (rule.kind == PathKind::File) {
         return canonical == rule.path;
     }
-    // Dir rule: rule.path ends with '/'; canonical must be a strict child.
-    return canonical.startsWith(rule.path) && canonical.length() > rule.path.length();
+    // Dir rule: rule.path ends with '/'; canonical must be a DIRECT child
+    // (exactly one segment below the dir, no deeper nesting).
+    if (!canonical.startsWith(rule.path)) {
+        return false;
+    }
+    const QString remainder = canonical.mid(rule.path.length());
+    return !remainder.isEmpty() && !remainder.contains(QLatin1Char('/'));
 }
 
 bool isModuleName(const QString &s)
@@ -97,18 +102,22 @@ QString canonicalize(const QString &path)
     return result;
 }
 
-bool isWritePathAllowed(const QString &path)
+bool isWriteTargetCanonical(const QString &canonicalPath)
 {
-    const QString canonical = canonicalize(path);
-    if (canonical.isEmpty()) {
+    if (canonicalPath.isEmpty()) {
         return false;
     }
     for (const auto &rule : writeRules()) {
-        if (matchesWrite(canonical, rule)) {
+        if (matchesWrite(canonicalPath, rule)) {
             return true;
         }
     }
     return false;
+}
+
+bool isWritePathAllowed(const QString &path)
+{
+    return isWriteTargetCanonical(canonicalize(path));
 }
 
 bool isReadDirAllowed(const QString &dirPath)
