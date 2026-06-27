@@ -44,6 +44,24 @@ bool matchesWrite(const QString &canonical, const PathRule &rule)
     return canonical.startsWith(rule.path) && canonical.length() > rule.path.length();
 }
 
+bool isModuleName(const QString &s)
+{
+    static const QRegularExpression re(QStringLiteral("^[A-Za-z0-9._-]+$"));
+    return re.match(s).hasMatch();
+}
+
+bool isCoprProject(const QString &s)
+{
+    static const QRegularExpression re(QStringLiteral("^[A-Za-z0-9._@/-]+$"));
+    return re.match(s).hasMatch();
+}
+
+bool isKernelImage(const QString &s)
+{
+    static const QRegularExpression re(QStringLiteral("^/boot/vmlinuz-[A-Za-z0-9._+-]+$"));
+    return re.match(s).hasMatch();
+}
+
 } // namespace
 
 QString canonicalize(const QString &path)
@@ -109,14 +127,56 @@ bool isReadFileAllowed(const QString &filePath)
     return readDirs().contains(parent);
 }
 
-// --- Replaced in Task 2 ---
-bool isExecAllowed(const QString &, const QStringList &)
+bool isExecAllowed(const QString &binary, const QStringList &args)
 {
+    if (binary == QStringLiteral("/usr/sbin/grubby")) {
+        return args.size() == 2
+            && args.at(0) == QStringLiteral("--set-default")
+            && isKernelImage(args.at(1));
+    }
+    if (binary == QStringLiteral("/usr/bin/dnf5")) {
+        if (args == QStringList{QStringLiteral("makecache")}) {
+            return true;
+        }
+        return args.size() == 4
+            && args.at(0) == QStringLiteral("copr")
+            && (args.at(1) == QStringLiteral("enable") || args.at(1) == QStringLiteral("disable"))
+            && isCoprProject(args.at(2))
+            && args.at(3) == QStringLiteral("-y");
+    }
+    if (binary == QStringLiteral("/usr/sbin/modprobe") || binary == QStringLiteral("/usr/sbin/rmmod")) {
+        return args.size() == 1 && isModuleName(args.at(0));
+    }
+    if (binary == QStringLiteral("/usr/sbin/setenforce")) {
+        return args == QStringList{QStringLiteral("0")} || args == QStringList{QStringLiteral("1")};
+    }
+    if (binary == QStringLiteral("/usr/sbin/setsebool")) {
+        return args.size() == 3
+            && args.at(0) == QStringLiteral("-P")
+            && isModuleName(args.at(1))
+            && (args.at(2) == QStringLiteral("on") || args.at(2) == QStringLiteral("off"));
+    }
     return false;
 }
 
-std::optional<PostCommand> postCommandFor(const QString &)
+std::optional<PostCommand> postCommandFor(const QString &canonicalPath)
 {
+    if (canonicalPath == QStringLiteral("/etc/default/grub")) {
+        return PostCommand{QStringLiteral("/usr/sbin/grub2-mkconfig"),
+                           {QStringLiteral("-o"), QStringLiteral("/boot/grub2/grub.cfg")}};
+    }
+    if (canonicalPath == QStringLiteral("/etc/fstab")) {
+        return PostCommand{QStringLiteral("/usr/bin/systemctl"),
+                           {QStringLiteral("daemon-reload")}};
+    }
+    if (canonicalPath == QStringLiteral("/etc/systemd/resolved.conf")) {
+        return PostCommand{QStringLiteral("/usr/bin/systemctl"),
+                           {QStringLiteral("restart"), QStringLiteral("systemd-resolved")}};
+    }
+    if (canonicalPath == QStringLiteral("/etc/sysctl.d/99-fls.conf")) {
+        return PostCommand{QStringLiteral("/usr/sbin/sysctl"),
+                           {QStringLiteral("--system")}};
+    }
     return std::nullopt;
 }
 
