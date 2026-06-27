@@ -65,7 +65,7 @@ sudo xargs rm < build/install_manifest.txt
 ## Architecture
 
 - **12 QML-based KCM modules** (.so plugins)
-- **Shared library** (libfls-common) with backup manager, config parsers, D-Bus helpers
+- **Static helper library** (fls-common) with backup manager, config parsers, D-Bus helpers — compiled into each module
 - **KAuth helper** (fls-helper) for privileged file operations
 - **polkit policies** for authentication
 
