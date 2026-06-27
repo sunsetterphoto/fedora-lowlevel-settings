@@ -5,7 +5,7 @@
 #include <QDateTime>
 #include <optional>
 
-namespace NsaFsm {
+namespace Fcse {
 
 struct BackupEntry {
     QString path;
@@ -15,7 +15,7 @@ struct BackupEntry {
 
 class BackupManager {
 public:
-    static constexpr const char *BACKUP_DIR = "/var/lib/nsa-fsm/backups";
+    static constexpr const char *BACKUP_DIR = "/var/lib/fcse/backups";
     static constexpr int MAX_BACKUPS_PER_FILE = 10;
 
     static std::optional<QString> backup(const QString &filePath);
@@ -28,4 +28,4 @@ private:
     static bool ensureBackupDir();
 };
 
-} // namespace NsaFsm
+} // namespace Fcse

@@ -1,6 +1,6 @@
 #include "dbushelper.h"
 
-namespace NsaFsm {
+namespace Fcse {
 
 QDBusPendingCall DBusHelper::asyncSystemCall(
     const QString &service, const QString &path, const QString &interface,
@@ -40,4 +40,4 @@ QDBusPendingCall DBusHelper::hostname1Call(const QString &method, const QVariant
         method, args);
 }
 
-} // namespace NsaFsm
+} // namespace Fcse

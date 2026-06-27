@@ -1,4 +1,4 @@
-# NSA Fedora System Manager
+# Fedora Core Setting Extension
 
 A comprehensive KDE System Settings plugin suite for Fedora Linux system administration. Adds a new **"System Administration"** category to KDE System Settings with 12 modules covering everything from systemd services to kernel parameters.
 
@@ -65,15 +65,15 @@ sudo xargs rm < build/install_manifest.txt
 ## Architecture
 
 - **12 QML-based KCM modules** (.so plugins)
-- **Shared library** (libnsa-fsm-common) with backup manager, config parsers, D-Bus helpers
-- **KAuth helper** (nsa-fsm-helper) for privileged file operations
+- **Shared library** (libfcse-common) with backup manager, config parsers, D-Bus helpers
+- **KAuth helper** (fcse-helper) for privileged file operations
 - **polkit policies** for authentication
 
 Services with native polkit support (systemd, hostname1) are accessed directly via D-Bus. File operations use the KAuth helper with automatic backup-before-write.
 
 ## Safety
 
-- Every config file write creates a timestamped backup in `/var/lib/nsa-fsm/backups/`
+- Every config file write creates a timestamped backup in `/var/lib/fcse/backups/`
 - sudoers changes are validated with `visudo -c` before writing
 - Root filesystem mount entries are protected from modification
 - Helper commands are whitelisted (no arbitrary command execution)
@@ -85,4 +85,4 @@ GPL-3.0-or-later
 
 ## Author
 
-NSA (Samuel)
+sunsetterphoto

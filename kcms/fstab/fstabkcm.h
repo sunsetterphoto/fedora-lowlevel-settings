@@ -32,7 +32,7 @@ Q_SIGNALS:
 
 private:
     void parseProcMounts();
-    QVariantMap fstabEntryToMap(const struct NsaFsm::FstabEntry &entry) const;
+    QVariantMap fstabEntryToMap(const struct Fcse::FstabEntry &entry) const;
 
     QVariantList m_entries;
     QSet<QString> m_mountedPoints;

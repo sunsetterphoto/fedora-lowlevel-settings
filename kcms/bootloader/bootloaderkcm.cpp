@@ -13,7 +13,7 @@ BootloaderKcm::BootloaderKcm(QObject *parent, const KPluginMetaData &metaData)
     : KQuickConfigModule(parent, metaData)
 {
     setButtons(Apply | Default);
-    setAuthActionName(QStringLiteral("org.kde.nsafsm.write"));
+    setAuthActionName(QStringLiteral("org.kde.fcse.write"));
     load();
 }
 
@@ -66,7 +66,7 @@ void BootloaderKcm::load()
 
 void BootloaderKcm::loadGrubDefaults()
 {
-    m_grubValues = NsaFsm::ConfigParser::parseKeyValue(
+    m_grubValues = Fcse::ConfigParser::parseKeyValue(
         QStringLiteral("/etc/default/grub"));
 
     m_grubTimeout = m_grubValues.value(QStringLiteral("GRUB_TIMEOUT"));
@@ -90,8 +90,8 @@ void BootloaderKcm::loadKernelEntries()
     QVariantMap args;
     args[QStringLiteral("dirPath")] = QStringLiteral("/boot/loader/entries/");
 
-    KAuth::Action action(QStringLiteral("org.kde.nsafsm.read"));
-    action.setHelperId(QStringLiteral("org.kde.nsafsm"));
+    KAuth::Action action(QStringLiteral("org.kde.fcse.read"));
+    action.setHelperId(QStringLiteral("org.kde.fcse"));
     action.setArguments(args);
 
     KAuth::ExecuteJob *job = action.execute();
@@ -200,8 +200,8 @@ void BootloaderKcm::saveGrubDefaults()
     args[QStringLiteral("postCommand")] = QStringLiteral("/usr/sbin/grub2-mkconfig");
     args[QStringLiteral("postArgs")] = QStringList{QStringLiteral("-o"), QStringLiteral("/boot/grub2/grub.cfg")};
 
-    KAuth::Action action(QStringLiteral("org.kde.nsafsm.write"));
-    action.setHelperId(QStringLiteral("org.kde.nsafsm"));
+    KAuth::Action action(QStringLiteral("org.kde.fcse.write"));
+    action.setHelperId(QStringLiteral("org.kde.fcse"));
     action.setArguments(args);
 
     KAuth::ExecuteJob *job = action.execute();
@@ -230,8 +230,8 @@ void BootloaderKcm::setDefaultKernel(const QString &version)
         QStringLiteral("/boot/vmlinuz-") + version
     };
 
-    KAuth::Action action(QStringLiteral("org.kde.nsafsm.execute"));
-    action.setHelperId(QStringLiteral("org.kde.nsafsm"));
+    KAuth::Action action(QStringLiteral("org.kde.fcse.execute"));
+    action.setHelperId(QStringLiteral("org.kde.fcse"));
     action.setArguments(args);
 
     KAuth::ExecuteJob *job = action.execute();
@@ -245,6 +245,6 @@ void BootloaderKcm::setDefaultKernel(const QString &version)
     job->start();
 }
 
-K_PLUGIN_CLASS_WITH_JSON(BootloaderKcm, "kcm_nsa_bootloader.json")
+K_PLUGIN_CLASS_WITH_JSON(BootloaderKcm, "kcm_fcse_bootloader.json")
 
 #include "bootloaderkcm.moc"

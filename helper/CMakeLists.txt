@@ -1,15 +1,15 @@
-add_executable(nsa-fsm-helper
-    nsafsmhelper.cpp
-    nsafsmhelper.h
+add_executable(fcse-helper
+    fcsehelper.cpp
+    fcsehelper.h
 )
 
-target_link_libraries(nsa-fsm-helper
-    nsa-fsm-common
+target_link_libraries(fcse-helper
+    fcse-common
     KF6::AuthCore
     Qt6::Core
     Qt6::DBus
 )
 
-kauth_install_actions(org.kde.nsafsm nsa-fsm.actions)
-kauth_install_helper_files(nsa-fsm-helper org.kde.nsafsm root)
-install(TARGETS nsa-fsm-helper DESTINATION ${KAUTH_HELPER_INSTALL_DIR})
+kauth_install_actions(org.kde.fcse fcse.actions)
+kauth_install_helper_files(fcse-helper org.kde.fcse root)
+install(TARGETS fcse-helper DESTINATION ${KAUTH_HELPER_INSTALL_DIR})

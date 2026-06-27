@@ -1,4 +1,4 @@
-#include "nsafsmhelper.h"
+#include "fcsehelper.h"
 #include "backupmanager.h"
 
 #include <QDir>
@@ -7,7 +7,7 @@
 #include <QProcess>
 #include <QTemporaryFile>
 
-using namespace NsaFsm;
+using namespace Fcse;
 
 // ---- Path / command whitelists ----
 
@@ -60,7 +60,7 @@ static bool isCommandAllowed(const QString &command)
 
 // ---- Private helpers ----
 
-bool NsaFsmHelper::validateSudoers(const QString &tempPath)
+bool FcseHelper::validateSudoers(const QString &tempPath)
 {
     QProcess proc;
     proc.start(QStringLiteral("/usr/sbin/visudo"), {QStringLiteral("-c"), QStringLiteral("-f"), tempPath});
@@ -68,7 +68,7 @@ bool NsaFsmHelper::validateSudoers(const QString &tempPath)
     return proc.exitCode() == 0;
 }
 
-ActionReply NsaFsmHelper::writeFileWithBackup(const QString &filePath, const QByteArray &content)
+ActionReply FcseHelper::writeFileWithBackup(const QString &filePath, const QByteArray &content)
 {
     // Back up existing file (if it exists)
     QString backupPath;
@@ -99,7 +99,7 @@ ActionReply NsaFsmHelper::writeFileWithBackup(const QString &filePath, const QBy
     return reply;
 }
 
-ActionReply NsaFsmHelper::runCommand(const QString &command, const QStringList &args)
+ActionReply FcseHelper::runCommand(const QString &command, const QStringList &args)
 {
     if (!isCommandAllowed(command)) {
         auto reply = ActionReply::HelperErrorReply();
@@ -124,7 +124,7 @@ ActionReply NsaFsmHelper::runCommand(const QString &command, const QStringList &
 
 // ---- Public action slots ----
 
-ActionReply NsaFsmHelper::write(const QVariantMap &args)
+ActionReply FcseHelper::write(const QVariantMap &args)
 {
     const QString filePath = args.value(QStringLiteral("filePath")).toString();
     const QByteArray content = args.value(QStringLiteral("content")).toByteArray();
@@ -194,7 +194,7 @@ ActionReply NsaFsmHelper::write(const QVariantMap &args)
     return writeReply;
 }
 
-ActionReply NsaFsmHelper::read(const QVariantMap &args)
+ActionReply FcseHelper::read(const QVariantMap &args)
 {
     const QString filePath = args.value(QStringLiteral("filePath")).toString();
     const QString dirPath = args.value(QStringLiteral("dirPath")).toString();
@@ -241,7 +241,7 @@ ActionReply NsaFsmHelper::read(const QVariantMap &args)
     return reply;
 }
 
-ActionReply NsaFsmHelper::execute(const QVariantMap &args)
+ActionReply FcseHelper::execute(const QVariantMap &args)
 {
     const QString command = args.value(QStringLiteral("command")).toString();
     const QStringList cmdArgs = args.value(QStringLiteral("args")).toStringList();
@@ -255,7 +255,7 @@ ActionReply NsaFsmHelper::execute(const QVariantMap &args)
     return runCommand(command, cmdArgs);
 }
 
-ActionReply NsaFsmHelper::backup(const QVariantMap &args)
+ActionReply FcseHelper::backup(const QVariantMap &args)
 {
     const QString filePath = args.value(QStringLiteral("filePath")).toString();
 
@@ -277,7 +277,7 @@ ActionReply NsaFsmHelper::backup(const QVariantMap &args)
     return reply;
 }
 
-ActionReply NsaFsmHelper::restore(const QVariantMap &args)
+ActionReply FcseHelper::restore(const QVariantMap &args)
 {
     const QString backupPath = args.value(QStringLiteral("backupPath")).toString();
     const QString originalPath = args.value(QStringLiteral("originalPath")).toString();
@@ -298,4 +298,4 @@ ActionReply NsaFsmHelper::restore(const QVariantMap &args)
     return ActionReply::SuccessReply();
 }
 
-KAUTH_HELPER_MAIN("org.kde.nsafsm", NsaFsmHelper)
+KAUTH_HELPER_MAIN("org.kde.fcse", FcseHelper)

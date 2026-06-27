@@ -5,7 +5,7 @@
 #include <QString>
 #include <QStringList>
 
-namespace NsaFsm {
+namespace Fcse {
 
 struct HostsEntry {
     QString ip;
@@ -46,4 +46,4 @@ public:
     static bool writeIni(const QString &filePath, const QMap<QString, QMap<QString, QString>> &sections);
 };
 
-} // namespace NsaFsm
+} // namespace Fcse

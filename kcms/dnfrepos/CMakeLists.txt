@@ -1,10 +1,10 @@
-kcmutils_add_qml_kcm(kcm_nsa_dnfrepos
+kcmutils_add_qml_kcm(kcm_fcse_dnfrepos
     SOURCES
         dnfreposkcm.cpp dnfreposkcm.h
 )
 
-target_link_libraries(kcm_nsa_dnfrepos PRIVATE
-    nsa-fsm-common
+target_link_libraries(kcm_fcse_dnfrepos PRIVATE
+    fcse-common
     KF6::KCMUtils
     KF6::I18n
     KF6::CoreAddons

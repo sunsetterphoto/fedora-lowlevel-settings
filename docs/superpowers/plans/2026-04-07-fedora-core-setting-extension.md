@@ -1,14 +1,14 @@
-# NSA Fedora System Manager Implementation Plan
+# Fedora Core Setting Extension Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build 12 KDE System Settings KCM modules for comprehensive Fedora system administration, appearing under a custom "System-Administration" category.
 
-**Architecture:** Monorepo with shared library (libnsa-fsm-common), single KAuth helper (nsa-fsm-helper) for privileged file operations, and 12 independent QML-based KCM plugins. D-Bus direct calls for services with own polkit integration, KAuth for /etc/ file writes.
+**Architecture:** Monorepo with shared library (libfcse-common), single KAuth helper (fcse-helper) for privileged file operations, and 12 independent QML-based KCM plugins. D-Bus direct calls for services with own polkit integration, KAuth for /etc/ file writes.
 
 **Tech Stack:** C++20, Qt 6.10, KDE Frameworks 6.24, QML/Kirigami, CMake, KAuth/polkit, D-Bus, sd-journal API
 
-**Spec:** `docs/superpowers/specs/2026-04-07-nsa-fedora-system-manager-design.md`
+**Spec:** `docs/superpowers/specs/2026-04-07-fedora-core-setting-extension-design.md`
 
 ---
 
@@ -43,7 +43,7 @@ Expected: All packages install successfully.
 - [ ] **Step 2: Verify cmake can find KF6**
 
 ```bash
-cd ~/nsa-fedora-system-manager
+cd ~/fedora-core-setting-extension
 cmake -B build-test -DCMAKE_INSTALL_PREFIX=/usr 2>&1 | head -5
 rm -rf build-test
 ```
@@ -61,9 +61,9 @@ Expected: cmake runs (will fail on missing CMakeLists, that's fine -- we're just
 - [ ] **Step 1: Create top-level CMakeLists.txt**
 
 ```cmake
-# ~/nsa-fedora-system-manager/CMakeLists.txt
+# ~/fedora-core-setting-extension/CMakeLists.txt
 cmake_minimum_required(VERSION 3.22)
-project(nsa-fedora-system-manager VERSION 0.1.0)
+project(fedora-core-setting-extension VERSION 0.1.0)
 
 set(QT_MIN_VERSION "6.8.0")
 set(KF6_MIN_VERSION "6.22.0")
@@ -92,11 +92,11 @@ add_subdirectory(helper)
 add_subdirectory(kcms)
 
 # Install category desktop file
-install(FILES categories/nsa-system-administration.desktop
+install(FILES categories/fcse-system-administration.desktop
         DESTINATION ${KDE_INSTALL_DATADIR}/systemsettings/categories)
 
 # Backup directory creation
-install(DIRECTORY DESTINATION /var/lib/nsa-fsm/backups)
+install(DIRECTORY DESTINATION /var/lib/fcse/backups)
 
 feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
 ```
@@ -104,7 +104,7 @@ feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
 - [ ] **Step 2: Create .gitignore**
 
 ```gitignore
-# ~/nsa-fedora-system-manager/.gitignore
+# ~/fedora-core-setting-extension/.gitignore
 build/
 build-*/
 .cache/
@@ -116,10 +116,10 @@ compile_commands.json
 - [ ] **Step 3: Create category desktop file**
 
 ```ini
-# ~/nsa-fedora-system-manager/categories/nsa-system-administration.desktop
+# ~/fedora-core-setting-extension/categories/fcse-system-administration.desktop
 [Desktop Entry]
 Type=Service
-X-KDE-System-Settings-Category=nsa-system-administration
+X-KDE-System-Settings-Category=fcse-system-administration
 X-KDE-System-Settings-Parent-Category=
 X-KDE-Weight=100
 Icon=preferences-system
@@ -131,24 +131,24 @@ Name[de]=System-Administration
 - [ ] **Step 4: Create stub CMakeLists for subdirectories**
 
 ```cmake
-# ~/nsa-fedora-system-manager/common/CMakeLists.txt
+# ~/fedora-core-setting-extension/common/CMakeLists.txt
 # Placeholder - will be populated in Task 3
 ```
 
 ```cmake
-# ~/nsa-fedora-system-manager/helper/CMakeLists.txt
+# ~/fedora-core-setting-extension/helper/CMakeLists.txt
 # Placeholder - will be populated in Task 5
 ```
 
 ```cmake
-# ~/nsa-fedora-system-manager/kcms/CMakeLists.txt
+# ~/fedora-core-setting-extension/kcms/CMakeLists.txt
 # Populated as modules are added
 ```
 
 - [ ] **Step 5: Verify build system**
 
 ```bash
-cd ~/nsa-fedora-system-manager
+cd ~/fedora-core-setting-extension
 cmake -B build -DCMAKE_INSTALL_PREFIX=/usr
 ```
 
@@ -175,8 +175,8 @@ git commit -m "feat: project skeleton with CMake build system and category regis
 - [ ] **Step 1: Write CMakeLists for common library**
 
 ```cmake
-# ~/nsa-fedora-system-manager/common/CMakeLists.txt
-add_library(nsa-fsm-common STATIC
+# ~/fedora-core-setting-extension/common/CMakeLists.txt
+add_library(fcse-common STATIC
     backupmanager.cpp
     backupmanager.h
     dbushelper.cpp
@@ -187,20 +187,20 @@ add_library(nsa-fsm-common STATIC
     statusnotifier.h
 )
 
-target_link_libraries(nsa-fsm-common PUBLIC
+target_link_libraries(fcse-common PUBLIC
     Qt6::Core
     Qt6::DBus
     KF6::CoreAddons
     KF6::Notifications
 )
 
-target_include_directories(nsa-fsm-common PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(fcse-common PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 ```
 
 - [ ] **Step 2: Write BackupManager header**
 
 ```cpp
-// ~/nsa-fedora-system-manager/common/backupmanager.h
+// ~/fedora-core-setting-extension/common/backupmanager.h
 #pragma once
 
 #include <QString>
@@ -208,7 +208,7 @@ target_include_directories(nsa-fsm-common PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 #include <QDateTime>
 #include <optional>
 
-namespace NsaFsm {
+namespace Fcse {
 
 struct BackupEntry {
     QString path;
@@ -218,7 +218,7 @@ struct BackupEntry {
 
 class BackupManager {
 public:
-    static constexpr const char *BACKUP_DIR = "/var/lib/nsa-fsm/backups";
+    static constexpr const char *BACKUP_DIR = "/var/lib/fcse/backups";
     static constexpr int MAX_BACKUPS_PER_FILE = 10;
 
     // Create backup of filePath, returns backup path or error string
@@ -238,20 +238,20 @@ private:
     static bool ensureBackupDir();
 };
 
-} // namespace NsaFsm
+} // namespace Fcse
 ```
 
 - [ ] **Step 3: Write BackupManager implementation**
 
 ```cpp
-// ~/nsa-fedora-system-manager/common/backupmanager.cpp
+// ~/fedora-core-setting-extension/common/backupmanager.cpp
 #include "backupmanager.h"
 
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
 
-namespace NsaFsm {
+namespace Fcse {
 
 bool BackupManager::ensureBackupDir()
 {
@@ -357,50 +357,50 @@ void BackupManager::rotate(const QString &originalFilePath)
     }
 }
 
-} // namespace NsaFsm
+} // namespace Fcse
 ```
 
 - [ ] **Step 4: Create stub files for other common classes (so cmake works)**
 
 ```cpp
-// ~/nsa-fedora-system-manager/common/dbushelper.h
+// ~/fedora-core-setting-extension/common/dbushelper.h
 #pragma once
-namespace NsaFsm {
+namespace Fcse {
 class DBusHelper {};
-} // namespace NsaFsm
+} // namespace Fcse
 
-// ~/nsa-fedora-system-manager/common/dbushelper.cpp
+// ~/fedora-core-setting-extension/common/dbushelper.cpp
 #include "dbushelper.h"
 
-// ~/nsa-fedora-system-manager/common/configparser.h
+// ~/fedora-core-setting-extension/common/configparser.h
 #pragma once
-namespace NsaFsm {
+namespace Fcse {
 class ConfigParser {};
-} // namespace NsaFsm
+} // namespace Fcse
 
-// ~/nsa-fedora-system-manager/common/configparser.cpp
+// ~/fedora-core-setting-extension/common/configparser.cpp
 #include "configparser.h"
 
-// ~/nsa-fedora-system-manager/common/statusnotifier.h
+// ~/fedora-core-setting-extension/common/statusnotifier.h
 #pragma once
-namespace NsaFsm {
+namespace Fcse {
 class StatusNotifier {};
-} // namespace NsaFsm
+} // namespace Fcse
 
-// ~/nsa-fedora-system-manager/common/statusnotifier.cpp
+// ~/fedora-core-setting-extension/common/statusnotifier.cpp
 #include "statusnotifier.h"
 ```
 
 - [ ] **Step 5: Write BackupManager test**
 
 ```cmake
-# ~/nsa-fedora-system-manager/tests/CMakeLists.txt
+# ~/fedora-core-setting-extension/tests/CMakeLists.txt
 find_package(Qt6 REQUIRED COMPONENTS Test)
 enable_testing()
 
 add_executable(test_backupmanager common/test_backupmanager.cpp)
 target_link_libraries(test_backupmanager
-    nsa-fsm-common
+    fcse-common
     Qt6::Test
 )
 add_test(NAME test_backupmanager COMMAND test_backupmanager)
@@ -415,13 +415,13 @@ endif()
 ```
 
 ```cpp
-// ~/nsa-fedora-system-manager/tests/common/test_backupmanager.cpp
+// ~/fedora-core-setting-extension/tests/common/test_backupmanager.cpp
 #include <QTest>
 #include <QTemporaryDir>
 #include <QFile>
 #include "backupmanager.h"
 
-using namespace NsaFsm;
+using namespace Fcse;
 
 class TestBackupManager : public QObject
 {
@@ -447,10 +447,10 @@ private Q_SLOTS:
         f.close();
 
         auto result = BackupManager::backup(testFile);
-        // This may fail if /var/lib/nsa-fsm/backups/ doesn't exist and we're not root
+        // This may fail if /var/lib/fcse/backups/ doesn't exist and we're not root
         // In that case, skip gracefully
         if (!result) {
-            QSKIP("Backup directory not writable (run as root or create /var/lib/nsa-fsm/backups/)");
+            QSKIP("Backup directory not writable (run as root or create /var/lib/fcse/backups/)");
         }
 
         QVERIFY(QFileInfo::exists(*result));
@@ -492,7 +492,7 @@ QTEST_MAIN(TestBackupManager)
 - [ ] **Step 6: Build and run tests**
 
 ```bash
-cd ~/nsa-fedora-system-manager
+cd ~/fedora-core-setting-extension
 cmake -B build -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_TESTING=ON
 cmake --build build
 cd build && ctest --output-on-failure
@@ -519,7 +519,7 @@ git commit -m "feat: add BackupManager with backup/restore/rotate functionality"
 - [ ] **Step 1: Implement DBusHelper**
 
 ```cpp
-// ~/nsa-fedora-system-manager/common/dbushelper.h
+// ~/fedora-core-setting-extension/common/dbushelper.h
 #pragma once
 
 #include <QDBusConnection>
@@ -528,7 +528,7 @@ git commit -m "feat: add BackupManager with backup/restore/rotate functionality"
 #include <QDBusPendingCall>
 #include <QVariantList>
 
-namespace NsaFsm {
+namespace Fcse {
 
 class DBusHelper {
 public:
@@ -557,14 +557,14 @@ public:
     static QDBusPendingCall hostname1Call(const QString &method, const QVariantList &args = {});
 };
 
-} // namespace NsaFsm
+} // namespace Fcse
 ```
 
 ```cpp
-// ~/nsa-fedora-system-manager/common/dbushelper.cpp
+// ~/fedora-core-setting-extension/common/dbushelper.cpp
 #include "dbushelper.h"
 
-namespace NsaFsm {
+namespace Fcse {
 
 QDBusPendingCall DBusHelper::asyncSystemCall(
     const QString &service,
@@ -612,20 +612,20 @@ QDBusPendingCall DBusHelper::hostname1Call(const QString &method, const QVariant
         method, args);
 }
 
-} // namespace NsaFsm
+} // namespace Fcse
 ```
 
 - [ ] **Step 2: Implement ConfigParser (sysctl + hosts parsers as first two)**
 
 ```cpp
-// ~/nsa-fedora-system-manager/common/configparser.h
+// ~/fedora-core-setting-extension/common/configparser.h
 #pragma once
 
 #include <QMap>
 #include <QList>
 #include <QString>
 
-namespace NsaFsm {
+namespace Fcse {
 
 struct HostsEntry {
     QString ip;
@@ -671,18 +671,18 @@ public:
     static bool writeIni(const QString &filePath, const QMap<QString, QMap<QString, QString>> &sections);
 };
 
-} // namespace NsaFsm
+} // namespace Fcse
 ```
 
 ```cpp
-// ~/nsa-fedora-system-manager/common/configparser.cpp
+// ~/fedora-core-setting-extension/common/configparser.cpp
 #include "configparser.h"
 
 #include <QFile>
 #include <QTextStream>
 #include <QRegularExpression>
 
-namespace NsaFsm {
+namespace Fcse {
 
 QList<SysctlEntry> ConfigParser::parseSysctl(const QString &filePath)
 {
@@ -712,7 +712,7 @@ bool ConfigParser::writeSysctl(const QString &filePath, const QList<SysctlEntry>
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return false;
 
     QTextStream out(&file);
-    out << "# Generated by NSA Fedora System Manager\n";
+    out << "# Generated by Fedora Core Setting Extension\n";
     out << "# Do not edit manually\n\n";
     for (const auto &e : entries) {
         out << e.key << " = " << e.value << "\n";
@@ -846,7 +846,7 @@ bool ConfigParser::writeKeyValue(const QString &filePath, const QMap<QString, QS
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return false;
 
     QTextStream out(&file);
-    out << "# Generated by NSA Fedora System Manager\n\n";
+    out << "# Generated by Fedora Core Setting Extension\n\n";
     for (auto it = values.constBegin(); it != values.constEnd(); ++it) {
         // Quote values that contain spaces
         if (it.value().contains(QLatin1Char(' '))) {
@@ -889,7 +889,7 @@ bool ConfigParser::writeIni(const QString &filePath, const QMap<QString, QMap<QS
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return false;
 
     QTextStream out(&file);
-    out << "# Generated by NSA Fedora System Manager\n\n";
+    out << "# Generated by Fedora Core Setting Extension\n\n";
     for (auto secIt = sections.constBegin(); secIt != sections.constEnd(); ++secIt) {
         out << "[" << secIt.key() << "]\n";
         for (auto kvIt = secIt.value().constBegin(); kvIt != secIt.value().constEnd(); ++kvIt) {
@@ -900,17 +900,17 @@ bool ConfigParser::writeIni(const QString &filePath, const QMap<QString, QMap<QS
     return true;
 }
 
-} // namespace NsaFsm
+} // namespace Fcse
 ```
 
 - [ ] **Step 3: Implement StatusNotifier**
 
 ```cpp
-// ~/nsa-fedora-system-manager/common/statusnotifier.h
+// ~/fedora-core-setting-extension/common/statusnotifier.h
 #pragma once
 #include <QString>
 
-namespace NsaFsm {
+namespace Fcse {
 
 class StatusNotifier {
 public:
@@ -920,19 +920,19 @@ public:
     static void backupCreated(const QString &path);
 };
 
-} // namespace NsaFsm
+} // namespace Fcse
 ```
 
 ```cpp
-// ~/nsa-fedora-system-manager/common/statusnotifier.cpp
+// ~/fedora-core-setting-extension/common/statusnotifier.cpp
 #include "statusnotifier.h"
 #include <KNotification>
 
-namespace NsaFsm {
+namespace Fcse {
 
 static void notify(const QString &title, const QString &message, const QString &iconName)
 {
-    auto *notification = new KNotification(QStringLiteral("nsafsm"));
+    auto *notification = new KNotification(QStringLiteral("fcse"));
     notification->setTitle(title);
     notification->setText(message);
     notification->setIconName(iconName);
@@ -941,38 +941,38 @@ static void notify(const QString &title, const QString &message, const QString &
 
 void StatusNotifier::success(const QString &message)
 {
-    notify(QStringLiteral("NSA FSM"), message, QStringLiteral("dialog-positive"));
+    notify(QStringLiteral("Fedora Core Setting Extension"), message, QStringLiteral("dialog-positive"));
 }
 
 void StatusNotifier::error(const QString &message)
 {
-    notify(QStringLiteral("NSA FSM - Fehler"), message, QStringLiteral("dialog-error"));
+    notify(QStringLiteral("Fedora Core Setting Extension - Fehler"), message, QStringLiteral("dialog-error"));
 }
 
 void StatusNotifier::warning(const QString &message)
 {
-    notify(QStringLiteral("NSA FSM - Warnung"), message, QStringLiteral("dialog-warning"));
+    notify(QStringLiteral("Fedora Core Setting Extension - Warnung"), message, QStringLiteral("dialog-warning"));
 }
 
 void StatusNotifier::backupCreated(const QString &path)
 {
-    notify(QStringLiteral("NSA FSM"),
+    notify(QStringLiteral("Fedora Core Setting Extension"),
            QStringLiteral("Backup erstellt: %1").arg(path),
            QStringLiteral("document-save"));
 }
 
-} // namespace NsaFsm
+} // namespace Fcse
 ```
 
 - [ ] **Step 4: Write ConfigParser tests**
 
 ```cpp
-// ~/nsa-fedora-system-manager/tests/common/test_configparser.cpp
+// ~/fedora-core-setting-extension/tests/common/test_configparser.cpp
 #include <QTest>
 #include <QTemporaryFile>
 #include "configparser.h"
 
-using namespace NsaFsm;
+using namespace Fcse;
 
 class TestConfigParser : public QObject
 {
@@ -1082,14 +1082,14 @@ Add to tests/CMakeLists.txt:
 
 ```cmake
 add_executable(test_configparser common/test_configparser.cpp)
-target_link_libraries(test_configparser nsa-fsm-common Qt6::Test)
+target_link_libraries(test_configparser fcse-common Qt6::Test)
 add_test(NAME test_configparser COMMAND test_configparser)
 ```
 
 - [ ] **Step 5: Build and run all tests**
 
 ```bash
-cd ~/nsa-fedora-system-manager
+cd ~/fedora-core-setting-extension
 cmake -B build -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_TESTING=ON
 cmake --build build
 cd build && ctest --output-on-failure
@@ -1110,115 +1110,115 @@ git commit -m "feat: add DBusHelper, ConfigParser, and StatusNotifier to common 
 
 **Files:**
 - Create: `helper/CMakeLists.txt`
-- Create: `helper/nsafsmhelper.h`
-- Create: `helper/nsafsmhelper.cpp`
-- Create: `helper/nsa-fsm.actions`
+- Create: `helper/fcsehelper.h`
+- Create: `helper/fcsehelper.cpp`
+- Create: `helper/fcse.actions`
 
 - [ ] **Step 1: Write .actions file for polkit policies**
 
 ```ini
-# ~/nsa-fedora-system-manager/helper/nsa-fsm.actions
+# ~/fedora-core-setting-extension/helper/fcse.actions
 
 [Domain]
-Name=NSA Fedora System Manager
+Name=Fedora Core Setting Extension
 Icon=preferences-system
 
-[org.kde.nsa-fsm.sysctl.write]
+[org.kde.fcse.sysctl.write]
 Name=Write sysctl configuration
 Description=Modify kernel parameters in /etc/sysctl.d/
 Policy=auth_admin
 
-[org.kde.nsa-fsm.grub.write]
+[org.kde.fcse.grub.write]
 Name=Write GRUB configuration
 Description=Modify bootloader configuration
 Policy=auth_admin
 
-[org.kde.nsa-fsm.bls.read]
+[org.kde.fcse.bls.read]
 Name=Read boot loader entries
 Description=Read kernel boot entries from /boot/loader/entries/
 Policy=auth_admin
 
-[org.kde.nsa-fsm.bls.write]
+[org.kde.fcse.bls.write]
 Name=Write boot loader entry
 Description=Modify kernel boot entries
 Policy=auth_admin
 
-[org.kde.nsa-fsm.bls.setdefault]
+[org.kde.fcse.bls.setdefault]
 Name=Set default kernel
 Description=Change the default boot kernel
 Policy=auth_admin
 
-[org.kde.nsa-fsm.fstab.write]
+[org.kde.fcse.fstab.write]
 Name=Write fstab configuration
 Description=Modify filesystem mount configuration
 Policy=auth_admin
 
-[org.kde.nsa-fsm.modprobe.write]
+[org.kde.fcse.modprobe.write]
 Name=Write modprobe configuration
 Description=Modify kernel module configuration
 Policy=auth_admin
 
-[org.kde.nsa-fsm.modprobe.load]
+[org.kde.fcse.modprobe.load]
 Name=Load or unload kernel module
 Description=Load or remove a kernel module
 Policy=auth_admin
 
-[org.kde.nsa-fsm.cron.write]
+[org.kde.fcse.cron.write]
 Name=Write system cron job
 Description=Modify system scheduled tasks
 Policy=auth_admin
 
-[org.kde.nsa-fsm.sudoers.write]
+[org.kde.fcse.sudoers.write]
 Name=Write sudoers configuration
 Description=Modify sudo rules
 Policy=auth_admin
 
-[org.kde.nsa-fsm.selinux.setmode]
+[org.kde.fcse.selinux.setmode]
 Name=Change SELinux mode
 Description=Switch between Enforcing and Permissive mode
 Policy=auth_admin
 
-[org.kde.nsa-fsm.selinux.setbool]
+[org.kde.fcse.selinux.setbool]
 Name=Change SELinux boolean
 Description=Toggle an SELinux boolean value
 Policy=auth_admin
 
-[org.kde.nsa-fsm.repos.write]
+[org.kde.fcse.repos.write]
 Name=Write DNF repository configuration
 Description=Modify package repository settings
 Policy=auth_admin
 
-[org.kde.nsa-fsm.repos.copr]
+[org.kde.fcse.repos.copr]
 Name=Manage COPR repository
 Description=Enable or disable a COPR repository
 Policy=auth_admin
 
-[org.kde.nsa-fsm.hosts.write]
+[org.kde.fcse.hosts.write]
 Name=Write hosts file
 Description=Modify /etc/hosts
 Policy=auth_admin
 
-[org.kde.nsa-fsm.env.write]
+[org.kde.fcse.env.write]
 Name=Write environment configuration
 Description=Modify system environment variables
 Policy=auth_admin
 
-[org.kde.nsa-fsm.resolved.write]
+[org.kde.fcse.resolved.write]
 Name=Write DNS resolver configuration
 Description=Modify systemd-resolved settings
 Policy=auth_admin
 
-[org.kde.nsa-fsm.zram.write]
+[org.kde.fcse.zram.write]
 Name=Write zram configuration
 Description=Modify swap/zram settings
 Policy=auth_admin
 
-[org.kde.nsa-fsm.generic.backup]
+[org.kde.fcse.generic.backup]
 Name=Create configuration backup
 Description=Backup a system configuration file
 Policy=auth_admin
 
-[org.kde.nsa-fsm.generic.restore]
+[org.kde.fcse.generic.restore]
 Name=Restore configuration backup
 Description=Restore a previously backed up configuration file
 Policy=auth_admin
@@ -1227,7 +1227,7 @@ Policy=auth_admin
 - [ ] **Step 2: Write KAuth Helper**
 
 ```cpp
-// ~/nsa-fedora-system-manager/helper/nsafsmhelper.h
+// ~/fedora-core-setting-extension/helper/fcsehelper.h
 #pragma once
 
 #include <KAuth/ActionReply>
@@ -1236,13 +1236,13 @@ Policy=auth_admin
 
 using namespace KAuth;
 
-class NsaFsmHelper : public QObject
+class FcseHelper : public QObject
 {
     Q_OBJECT
 
 public Q_SLOTS:
     // Each slot name corresponds to the last part of the action ID
-    // e.g. org.kde.nsa-fsm.sysctl.write -> uses writeFile with "sysctl" context
+    // e.g. org.kde.fcse.sysctl.write -> uses writeFile with "sysctl" context
 
     // Generic file write with backup
     ActionReply write(const QVariantMap &args);
@@ -1265,8 +1265,8 @@ private:
 ```
 
 ```cpp
-// ~/nsa-fedora-system-manager/helper/nsafsmhelper.cpp
-#include "nsafsmhelper.h"
+// ~/fedora-core-setting-extension/helper/fcsehelper.cpp
+#include "fcsehelper.h"
 #include "backupmanager.h"
 
 #include <QDir>
@@ -1274,11 +1274,11 @@ private:
 #include <QProcess>
 #include <QTemporaryFile>
 
-ActionReply NsaFsmHelper::writeFileWithBackup(const QString &filePath, const QByteArray &content)
+ActionReply FcseHelper::writeFileWithBackup(const QString &filePath, const QByteArray &content)
 {
     // Step 1: Backup existing file
     if (QFile::exists(filePath)) {
-        auto backupResult = NsaFsm::BackupManager::backup(filePath);
+        auto backupResult = Fcse::BackupManager::backup(filePath);
         if (!backupResult) {
             auto reply = ActionReply::HelperErrorReply();
             reply.setErrorDescription(
@@ -1304,7 +1304,7 @@ ActionReply NsaFsmHelper::writeFileWithBackup(const QString &filePath, const QBy
     return reply;
 }
 
-ActionReply NsaFsmHelper::runCommand(const QString &command, const QStringList &args)
+ActionReply FcseHelper::runCommand(const QString &command, const QStringList &args)
 {
     QProcess proc;
     proc.start(command, args);
@@ -1326,7 +1326,7 @@ ActionReply NsaFsmHelper::runCommand(const QString &command, const QStringList &
     return reply;
 }
 
-bool NsaFsmHelper::validateSudoers(const QString &tempPath)
+bool FcseHelper::validateSudoers(const QString &tempPath)
 {
     QProcess proc;
     proc.start(QStringLiteral("visudo"), {QStringLiteral("-c"), QStringLiteral("-f"), tempPath});
@@ -1334,7 +1334,7 @@ bool NsaFsmHelper::validateSudoers(const QString &tempPath)
     return proc.exitCode() == 0;
 }
 
-ActionReply NsaFsmHelper::write(const QVariantMap &args)
+ActionReply FcseHelper::write(const QVariantMap &args)
 {
     const QString filePath = args[QStringLiteral("filePath")].toString();
     const QByteArray content = args[QStringLiteral("content")].toByteArray();
@@ -1399,7 +1399,7 @@ ActionReply NsaFsmHelper::write(const QVariantMap &args)
         auto cmdReply = runCommand(postCommand, postArgs);
         if (cmdReply.failed()) {
             // Post-command failed -- restore backup
-            auto backups = NsaFsm::BackupManager::listBackups(filePath);
+            auto backups = Fcse::BackupManager::listBackups(filePath);
             if (!backups.isEmpty()) {
                 QFile::remove(filePath);
                 QFile::copy(backups.first().path, filePath);
@@ -1411,7 +1411,7 @@ ActionReply NsaFsmHelper::write(const QVariantMap &args)
     return writeReply;
 }
 
-ActionReply NsaFsmHelper::read(const QVariantMap &args)
+ActionReply FcseHelper::read(const QVariantMap &args)
 {
     const QString dirPath = args.value(QStringLiteral("dirPath")).toString();
     const QString filePath = args.value(QStringLiteral("filePath")).toString();
@@ -1446,7 +1446,7 @@ ActionReply NsaFsmHelper::read(const QVariantMap &args)
     return ActionReply::HelperErrorReply();
 }
 
-ActionReply NsaFsmHelper::execute(const QVariantMap &args)
+ActionReply FcseHelper::execute(const QVariantMap &args)
 {
     const QString command = args[QStringLiteral("command")].toString();
     const QStringList cmdArgs = args.value(QStringLiteral("args")).toStringList();
@@ -1476,10 +1476,10 @@ ActionReply NsaFsmHelper::execute(const QVariantMap &args)
     return runCommand(command, cmdArgs);
 }
 
-ActionReply NsaFsmHelper::backup(const QVariantMap &args)
+ActionReply FcseHelper::backup(const QVariantMap &args)
 {
     const QString filePath = args[QStringLiteral("filePath")].toString();
-    auto result = NsaFsm::BackupManager::backup(filePath);
+    auto result = Fcse::BackupManager::backup(filePath);
     if (!result) {
         auto reply = ActionReply::HelperErrorReply();
         reply.setErrorDescription(QStringLiteral("Backup failed for %1").arg(filePath));
@@ -1490,11 +1490,11 @@ ActionReply NsaFsmHelper::backup(const QVariantMap &args)
     return reply;
 }
 
-ActionReply NsaFsmHelper::restore(const QVariantMap &args)
+ActionReply FcseHelper::restore(const QVariantMap &args)
 {
     const QString backupPath = args[QStringLiteral("backupPath")].toString();
     const QString originalPath = args[QStringLiteral("originalPath")].toString();
-    auto result = NsaFsm::BackupManager::restore(backupPath, originalPath);
+    auto result = Fcse::BackupManager::restore(backupPath, originalPath);
     if (!result) {
         auto reply = ActionReply::HelperErrorReply();
         reply.setErrorDescription(QStringLiteral("Restore failed"));
@@ -1503,37 +1503,37 @@ ActionReply NsaFsmHelper::restore(const QVariantMap &args)
     return ActionReply::SuccessReply();
 }
 
-KAUTH_HELPER_MAIN("org.kde.nsa-fsm", NsaFsmHelper)
+KAUTH_HELPER_MAIN("org.kde.fcse", FcseHelper)
 ```
 
 - [ ] **Step 3: Write helper CMakeLists.txt**
 
 ```cmake
-# ~/nsa-fedora-system-manager/helper/CMakeLists.txt
-add_executable(nsa-fsm-helper
-    nsafsmhelper.cpp
-    nsafsmhelper.h
+# ~/fedora-core-setting-extension/helper/CMakeLists.txt
+add_executable(fcse-helper
+    fcsehelper.cpp
+    fcsehelper.h
 )
 
-target_link_libraries(nsa-fsm-helper
-    nsa-fsm-common
+target_link_libraries(fcse-helper
+    fcse-common
     KF6::AuthCore
     Qt6::Core
     Qt6::DBus
 )
 
 # Install polkit actions
-kauth_install_actions(org.kde.nsa-fsm nsa-fsm.actions)
+kauth_install_actions(org.kde.fcse fcse.actions)
 
 # Install helper with D-Bus activation
-kauth_install_helper_files(nsa-fsm-helper org.kde.nsa-fsm root)
-install(TARGETS nsa-fsm-helper DESTINATION ${KAUTH_HELPER_INSTALL_DIR})
+kauth_install_helper_files(fcse-helper org.kde.fcse root)
+install(TARGETS fcse-helper DESTINATION ${KAUTH_HELPER_INSTALL_DIR})
 ```
 
 - [ ] **Step 4: Build**
 
 ```bash
-cd ~/nsa-fedora-system-manager
+cd ~/fedora-core-setting-extension
 cmake -B build -DCMAKE_INSTALL_PREFIX=/usr
 cmake --build build
 ```
@@ -1555,7 +1555,7 @@ Simplest module -- no KAuth needed, pure read-only. Proves the KCM pipeline work
 
 **Files:**
 - Create: `kcms/journal/CMakeLists.txt`
-- Create: `kcms/journal/kcm_nsa_journal.json`
+- Create: `kcms/journal/kcm_fcse_journal.json`
 - Create: `kcms/journal/journalkcm.h`
 - Create: `kcms/journal/journalkcm.cpp`
 - Create: `kcms/journal/journalmodel.h`
@@ -1572,17 +1572,17 @@ Simplest module -- no KAuth needed, pure read-only. Proves the KCM pipeline work
         "Icon": "text-x-log",
         "Name": "System Logs"
     },
-    "X-KDE-System-Settings-Parent-Category": "nsa-system-administration",
+    "X-KDE-System-Settings-Parent-Category": "fcse-system-administration",
     "X-KDE-Weight": 120
 }
 ```
 
-Save as `kcms/journal/kcm_nsa_journal.json`.
+Save as `kcms/journal/kcm_fcse_journal.json`.
 
 - [ ] **Step 2: Write JournalModel (C++ backend for sd-journal)**
 
 ```cpp
-// ~/nsa-fedora-system-manager/kcms/journal/journalmodel.h
+// ~/fedora-core-setting-extension/kcms/journal/journalmodel.h
 #pragma once
 
 #include <QAbstractListModel>
@@ -1657,7 +1657,7 @@ private:
 ```
 
 ```cpp
-// ~/nsa-fedora-system-manager/kcms/journal/journalmodel.cpp
+// ~/fedora-core-setting-extension/kcms/journal/journalmodel.cpp
 #include "journalmodel.h"
 
 #include <QTimeZone>
@@ -1852,7 +1852,7 @@ QStringList JournalModel::availableUnits() const
 - [ ] **Step 3: Write JournalKcm (KCM plugin class)**
 
 ```cpp
-// ~/nsa-fedora-system-manager/kcms/journal/journalkcm.h
+// ~/fedora-core-setting-extension/kcms/journal/journalkcm.h
 #pragma once
 
 #include <KQuickConfigModule>
@@ -1875,13 +1875,13 @@ private:
 ```
 
 ```cpp
-// ~/nsa-fedora-system-manager/kcms/journal/journalkcm.cpp
+// ~/fedora-core-setting-extension/kcms/journal/journalkcm.cpp
 #include "journalkcm.h"
 #include "journalmodel.h"
 
 #include <KPluginFactory>
 
-K_PLUGIN_CLASS_WITH_JSON(JournalKcm, "kcm_nsa_journal.json")
+K_PLUGIN_CLASS_WITH_JSON(JournalKcm, "kcm_fcse_journal.json")
 
 JournalKcm::JournalKcm(QObject *parent, const KPluginMetaData &metaData)
     : KQuickConfigModule(parent, metaData)
@@ -1896,7 +1896,7 @@ JournalKcm::JournalKcm(QObject *parent, const KPluginMetaData &metaData)
 - [ ] **Step 4: Write QML UI**
 
 ```qml
-// ~/nsa-fedora-system-manager/kcms/journal/ui/main.qml
+// ~/fedora-core-setting-extension/kcms/journal/ui/main.qml
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls as QQC2
@@ -2007,15 +2007,15 @@ KCMUtils.ScrollViewKCM {
 - [ ] **Step 5: Write CMakeLists for journal KCM**
 
 ```cmake
-# ~/nsa-fedora-system-manager/kcms/journal/CMakeLists.txt
-kcmutils_add_qml_kcm(kcm_nsa_journal
+# ~/fedora-core-setting-extension/kcms/journal/CMakeLists.txt
+kcmutils_add_qml_kcm(kcm_fcse_journal
     SOURCES
         journalkcm.cpp journalkcm.h
         journalmodel.cpp journalmodel.h
 )
 
-target_link_libraries(kcm_nsa_journal PRIVATE
-    nsa-fsm-common
+target_link_libraries(kcm_fcse_journal PRIVATE
+    fcse-common
     KF6::KCMUtils
     KF6::I18n
     KF6::CoreAddons
@@ -2025,19 +2025,19 @@ target_link_libraries(kcm_nsa_journal PRIVATE
 ```
 
 ```cmake
-# ~/nsa-fedora-system-manager/kcms/CMakeLists.txt
+# ~/fedora-core-setting-extension/kcms/CMakeLists.txt
 add_subdirectory(journal)
 ```
 
 - [ ] **Step 6: Build and test**
 
 ```bash
-cd ~/nsa-fedora-system-manager
+cd ~/fedora-core-setting-extension
 cmake -B build -DCMAKE_INSTALL_PREFIX=/usr
 cmake --build build
 # Test standalone:
 sudo cmake --install build
-kcmshell6 kcm_nsa_journal
+kcmshell6 kcm_fcse_journal
 ```
 
 Expected: Journal KCM opens showing recent log entries with search and priority filter.
@@ -2055,7 +2055,7 @@ git commit -m "feat: add System Journal KCM module with sd-journal integration"
 
 **Files:**
 - Create: `kcms/services/CMakeLists.txt`
-- Create: `kcms/services/kcm_nsa_services.json`
+- Create: `kcms/services/kcm_fcse_services.json`
 - Create: `kcms/services/serviceskcm.h` and `.cpp`
 - Create: `kcms/services/unitmodel.h` and `.cpp`
 - Create: `kcms/services/ui/main.qml`
@@ -2063,13 +2063,13 @@ git commit -m "feat: add System Journal KCM module with sd-journal integration"
 
 This follows the same pattern as Task 6 but uses D-Bus to `org.freedesktop.systemd1` instead of sd-journal. The UnitModel fetches data via `ListUnits()` and `ListUnitFiles()`, provides roles for name, description, activeState, unitFileState, and type. Actions (start/stop/enable/disable) use `DBusHelper::systemdCall()` with interactive auth.
 
-- [ ] **Step 1: Create metadata JSON** (`kcm_nsa_services.json` with Name "Services", Icon "system-run", Weight 10)
+- [ ] **Step 1: Create metadata JSON** (`kcm_fcse_services.json` with Name "Services", Icon "system-run", Weight 10)
 - [ ] **Step 2: Write UnitModel** (QAbstractListModel, roles: name, description, activeState, subState, unitFileState, type; loads via D-Bus ListUnits; filters by type; search by name)
 - [ ] **Step 3: Write ServicesKcm** (KQuickConfigModule, exposes UnitModel, Q_INVOKABLE startUnit/stopUnit/restartUnit/enableUnit/disableUnit methods using DBusHelper)
 - [ ] **Step 4: Write QML UI** (ScrollViewKCM with SearchField, type-filter ComboBox, ListView with status badges, action buttons per delegate)
 - [ ] **Step 5: Write CMakeLists** (same pattern as journal, link Qt6::DBus)
 - [ ] **Step 6: Add `add_subdirectory(services)` to kcms/CMakeLists.txt**
-- [ ] **Step 7: Build, install, test with `kcmshell6 kcm_nsa_services`**
+- [ ] **Step 7: Build, install, test with `kcmshell6 kcm_fcse_services`**
 - [ ] **Step 8: Commit** `"feat: add systemd Services KCM module"`
 
 ---
@@ -2078,19 +2078,19 @@ This follows the same pattern as Task 6 but uses D-Bus to `org.freedesktop.syste
 
 **Files:**
 - Create: `kcms/sysctl/CMakeLists.txt`
-- Create: `kcms/sysctl/kcm_nsa_sysctl.json`
+- Create: `kcms/sysctl/kcm_fcse_sysctl.json`
 - Create: `kcms/sysctl/sysctlkcm.h` and `.cpp`
 - Create: `kcms/sysctl/sysctlmodel.h` and `.cpp`
 - Create: `kcms/sysctl/ui/main.qml`
 
-First module that writes via KAuth. The SysctlModel reads from `/proc/sys/` (no root needed) and custom values from `/etc/sysctl.d/*.conf`. Save triggers KAuth action `org.kde.nsa-fsm.write` with filePath `/etc/sysctl.d/99-nsa-fsm.conf` and postCommand `sysctl --system`.
+First module that writes via KAuth. The SysctlModel reads from `/proc/sys/` (no root needed) and custom values from `/etc/sysctl.d/*.conf`. Save triggers KAuth action `org.kde.fcse.write` with filePath `/etc/sysctl.d/99-fcse.conf` and postCommand `sysctl --system`.
 
 - [ ] **Step 1: Create metadata JSON** (Name "Kernel Parameters", Icon "preferences-system-linux", Weight 20)
 - [ ] **Step 2: Write SysctlModel** (TreeModel with categories kernel/vm/net/fs/dev, reads /proc/sys/ recursively, shows current + custom values)
-- [ ] **Step 3: Write SysctlKcm** (KQuickConfigModule with save() override that calls KAuth::Action `org.kde.nsa-fsm.write`, setAuthActionName)
+- [ ] **Step 3: Write SysctlKcm** (KQuickConfigModule with save() override that calls KAuth::Action `org.kde.fcse.write`, setAuthActionName)
 - [ ] **Step 4: Write QML UI** (ScrollViewKCM with TreeView, inline editing, preset selector)
 - [ ] **Step 5: Write CMakeLists** (link KF6::AuthCore additionally)
-- [ ] **Step 6: Build, install, test with `kcmshell6 kcm_nsa_sysctl`**
+- [ ] **Step 6: Build, install, test with `kcmshell6 kcm_fcse_sysctl`**
 - [ ] **Step 7: Commit** `"feat: add sysctl Parameters KCM module with KAuth integration"`
 
 ---
@@ -2132,7 +2132,7 @@ TableView of fstab entries with status from /proc/mounts. Edit dialog as Overlay
 
 **Files:** `kcms/kernelmodules/` -- same structure
 
-Reads `/proc/modules` for loaded modules. `modinfo` output via QProcess (no root needed for reading). Blacklist management via KAuth write to `/etc/modprobe.d/nsa-fsm-blacklist.conf`. Load/unload via KAuth execute with `modprobe`/`rmmod`.
+Reads `/proc/modules` for loaded modules. `modinfo` output via QProcess (no root needed for reading). Blacklist management via KAuth write to `/etc/modprobe.d/fcse-blacklist.conf`. Load/unload via KAuth execute with `modprobe`/`rmmod`.
 
 - [ ] **Steps 1-7:** Follow established pattern
 - [ ] **Commit** `"feat: add Kernel Modules KCM module"`
@@ -2201,7 +2201,7 @@ Reads /proc/swaps, /sys/block/zram0/ stats, current zram-generator config. Write
 - [ ] **Step 1: Full build**
 
 ```bash
-cd ~/nsa-fedora-system-manager
+cd ~/fedora-core-setting-extension
 cmake -B build -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_TESTING=ON
 cmake --build build
 ```
@@ -2225,21 +2225,21 @@ Open KDE System Settings, check that "System-Administration" category appears in
 - [ ] **Step 5: Test each module individually**
 
 ```bash
-kcmshell6 kcm_nsa_journal
-kcmshell6 kcm_nsa_services
-kcmshell6 kcm_nsa_sysctl
-kcmshell6 kcm_nsa_hostname
-kcmshell6 kcm_nsa_bootloader
-kcmshell6 kcm_nsa_fstab
-kcmshell6 kcm_nsa_kernelmodules
-kcmshell6 kcm_nsa_scheduledtasks
-kcmshell6 kcm_nsa_security
-kcmshell6 kcm_nsa_dnfrepos
-kcmshell6 kcm_nsa_environment
-kcmshell6 kcm_nsa_swap
+kcmshell6 kcm_fcse_journal
+kcmshell6 kcm_fcse_services
+kcmshell6 kcm_fcse_sysctl
+kcmshell6 kcm_fcse_hostname
+kcmshell6 kcm_fcse_bootloader
+kcmshell6 kcm_fcse_fstab
+kcmshell6 kcm_fcse_kernelmodules
+kcmshell6 kcm_fcse_scheduledtasks
+kcmshell6 kcm_fcse_security
+kcmshell6 kcm_fcse_dnfrepos
+kcmshell6 kcm_fcse_environment
+kcmshell6 kcm_fcse_swap
 ```
 
-- [ ] **Step 6: Test a write operation** (e.g. add a sysctl parameter, verify backup created in /var/lib/nsa-fsm/backups/)
+- [ ] **Step 6: Test a write operation** (e.g. add a sysctl parameter, verify backup created in /var/lib/fcse/backups/)
 
 - [ ] **Step 7: Commit any fixes**
 

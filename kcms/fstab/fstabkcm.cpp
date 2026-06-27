@@ -16,7 +16,7 @@ FstabKcm::FstabKcm(QObject *parent, const KPluginMetaData &metaData)
     : KQuickConfigModule(parent, metaData)
 {
     setButtons(Apply | Default);
-    setAuthActionName(QStringLiteral("org.kde.nsafsm.write"));
+    setAuthActionName(QStringLiteral("org.kde.fcse.write"));
     load();
 }
 
@@ -41,7 +41,7 @@ void FstabKcm::parseProcMounts()
     }
 }
 
-QVariantMap FstabKcm::fstabEntryToMap(const NsaFsm::FstabEntry &entry) const
+QVariantMap FstabKcm::fstabEntryToMap(const Fcse::FstabEntry &entry) const
 {
     QVariantMap map;
 
@@ -88,7 +88,7 @@ void FstabKcm::load()
 {
     parseProcMounts();
 
-    const auto fstabEntries = NsaFsm::ConfigParser::parseFstab(QStringLiteral("/etc/fstab"));
+    const auto fstabEntries = Fcse::ConfigParser::parseFstab(QStringLiteral("/etc/fstab"));
 
     m_entries.clear();
     for (const auto &entry : fstabEntries) {
@@ -102,10 +102,10 @@ void FstabKcm::load()
 void FstabKcm::save()
 {
     // Reconstruct FstabEntry list from QVariantList (preserves comments)
-    QList<NsaFsm::FstabEntry> entries;
+    QList<Fcse::FstabEntry> entries;
     for (const auto &variant : std::as_const(m_entries)) {
         const QVariantMap map = variant.toMap();
-        NsaFsm::FstabEntry entry;
+        Fcse::FstabEntry entry;
 
         if (map[QStringLiteral("isComment")].toBool()) {
             entry.comment = map[QStringLiteral("comment")].toString();
@@ -144,8 +144,8 @@ void FstabKcm::save()
     args[QStringLiteral("postCommand")] = QStringLiteral("/usr/bin/systemctl");
     args[QStringLiteral("postArgs")] = QStringList{QStringLiteral("daemon-reload")};
 
-    KAuth::Action action(QStringLiteral("org.kde.nsafsm.write"));
-    action.setHelperId(QStringLiteral("org.kde.nsafsm"));
+    KAuth::Action action(QStringLiteral("org.kde.fcse.write"));
+    action.setHelperId(QStringLiteral("org.kde.fcse"));
     action.setArguments(args);
 
     KAuth::ExecuteJob *job = action.execute();
@@ -234,6 +234,6 @@ QString FstabKcm::fsTypeDescription(const QString &fstype) const
     return descriptions.value(fstype);
 }
 
-K_PLUGIN_CLASS_WITH_JSON(FstabKcm, "kcm_nsa_fstab.json")
+K_PLUGIN_CLASS_WITH_JSON(FstabKcm, "kcm_fcse_fstab.json")
 
 #include "fstabkcm.moc"

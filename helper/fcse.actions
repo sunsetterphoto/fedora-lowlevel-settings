@@ -1,28 +1,28 @@
 [Domain]
-Name=NSA Fedora System Manager
+Name=Fedora Core Setting Extension
 Icon=preferences-system
 
-[org.kde.nsafsm.write]
+[org.kde.fcse.write]
 Name=Write system configuration
 Description=Write a system configuration file with automatic backup
 Policy=auth_admin
 
-[org.kde.nsafsm.read]
+[org.kde.fcse.read]
 Name=Read protected files
 Description=Read system files that require elevated privileges
 Policy=auth_admin
 
-[org.kde.nsafsm.execute]
+[org.kde.fcse.execute]
 Name=Execute system command
 Description=Run a whitelisted system administration command
 Policy=auth_admin
 
-[org.kde.nsafsm.backup]
+[org.kde.fcse.backup]
 Name=Create configuration backup
 Description=Backup a system configuration file
 Policy=auth_admin
 
-[org.kde.nsafsm.restore]
+[org.kde.fcse.restore]
 Name=Restore configuration backup
 Description=Restore a previously backed up configuration file
 Policy=auth_admin

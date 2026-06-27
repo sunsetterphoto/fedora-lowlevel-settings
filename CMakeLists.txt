@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.22)
-project(nsa-fedora-system-manager VERSION 0.1.0)
+project(fedora-core-setting-extension VERSION 0.1.0)
 
 set(QT_MIN_VERSION "6.8.0")
 set(KF6_MIN_VERSION "6.22.0")
@@ -28,11 +28,11 @@ add_subdirectory(helper)
 add_subdirectory(kcms)
 
 # Install category desktop file
-install(FILES categories/nsa-system-administration.desktop
+install(FILES categories/fcse-system-administration.desktop
         DESTINATION ${KDE_INSTALL_DATADIR}/systemsettings/categories)
 
 # Backup directory creation
-install(DIRECTORY DESTINATION /var/lib/nsa-fsm/backups)
+install(DIRECTORY DESTINATION /var/lib/fcse/backups)
 
 if(BUILD_TESTING)
     add_subdirectory(tests)

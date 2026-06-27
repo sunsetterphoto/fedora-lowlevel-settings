@@ -160,7 +160,7 @@ void HostnameKcm::loadHostsFile()
 
 void HostnameKcm::loadResolvedConf()
 {
-    const auto sections = NsaFsm::ConfigParser::parseIni(
+    const auto sections = Fcse::ConfigParser::parseIni(
         QStringLiteral("/etc/systemd/resolved.conf"));
 
     const auto resolve = sections.value(QStringLiteral("Resolve"));
@@ -201,21 +201,21 @@ void HostnameKcm::save()
 void HostnameKcm::saveHostnameToDBus()
 {
     if (m_prettyHostname != m_origPrettyHostname) {
-        NsaFsm::DBusHelper::hostname1Call(
+        Fcse::DBusHelper::hostname1Call(
             QStringLiteral("SetPrettyHostname"),
             {m_prettyHostname, true});
         m_origPrettyHostname = m_prettyHostname;
     }
 
     if (m_staticHostname != m_origStaticHostname) {
-        NsaFsm::DBusHelper::hostname1Call(
+        Fcse::DBusHelper::hostname1Call(
             QStringLiteral("SetStaticHostname"),
             {m_staticHostname, true});
         m_origStaticHostname = m_staticHostname;
     }
 
     if (m_iconName != m_origIconName) {
-        NsaFsm::DBusHelper::hostname1Call(
+        Fcse::DBusHelper::hostname1Call(
             QStringLiteral("SetIconName"),
             {m_iconName, true});
         m_origIconName = m_iconName;
@@ -232,8 +232,8 @@ void HostnameKcm::saveHostsFile()
     args[QStringLiteral("filePath")] = QStringLiteral("/etc/hosts");
     args[QStringLiteral("content")] = m_hostsContent.toUtf8();
 
-    KAuth::Action action(QStringLiteral("org.kde.nsafsm.write"));
-    action.setHelperId(QStringLiteral("org.kde.nsafsm"));
+    KAuth::Action action(QStringLiteral("org.kde.fcse.write"));
+    action.setHelperId(QStringLiteral("org.kde.fcse"));
     action.setArguments(args);
 
     KAuth::ExecuteJob *job = action.execute();
@@ -257,7 +257,7 @@ void HostnameKcm::saveResolvedConf()
     }
 
     // Read existing config to preserve other sections/keys
-    auto sections = NsaFsm::ConfigParser::parseIni(
+    auto sections = Fcse::ConfigParser::parseIni(
         QStringLiteral("/etc/systemd/resolved.conf"));
 
     auto &resolve = sections[QStringLiteral("Resolve")];
@@ -288,8 +288,8 @@ void HostnameKcm::saveResolvedConf()
     args[QStringLiteral("postCommand")] = QStringLiteral("/usr/bin/systemctl");
     args[QStringLiteral("postArgs")] = QStringList{QStringLiteral("restart"), QStringLiteral("systemd-resolved")};
 
-    KAuth::Action action(QStringLiteral("org.kde.nsafsm.write"));
-    action.setHelperId(QStringLiteral("org.kde.nsafsm"));
+    KAuth::Action action(QStringLiteral("org.kde.fcse.write"));
+    action.setHelperId(QStringLiteral("org.kde.fcse"));
     action.setArguments(args);
 
     KAuth::ExecuteJob *job = action.execute();
@@ -307,6 +307,6 @@ void HostnameKcm::saveResolvedConf()
     job->start();
 }
 
-K_PLUGIN_CLASS_WITH_JSON(HostnameKcm, "kcm_nsa_hostname.json")
+K_PLUGIN_CLASS_WITH_JSON(HostnameKcm, "kcm_fcse_hostname.json")
 
 #include "hostnamekcm.moc"

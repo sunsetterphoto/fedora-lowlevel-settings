@@ -32,26 +32,26 @@ void ServicesKcm::restartUnit(const QString &name)
 
 void ServicesKcm::enableUnit(const QString &name)
 {
-    NsaFsm::DBusHelper::systemdCall(QStringLiteral("EnableUnitFiles"),
+    Fcse::DBusHelper::systemdCall(QStringLiteral("EnableUnitFiles"),
         {QStringList{name}, false, true});
-    NsaFsm::DBusHelper::systemdCall(QStringLiteral("Reload"), {});
+    Fcse::DBusHelper::systemdCall(QStringLiteral("Reload"), {});
     QTimer::singleShot(500, m_model, &UnitModel::refresh);
 }
 
 void ServicesKcm::disableUnit(const QString &name)
 {
-    NsaFsm::DBusHelper::systemdCall(QStringLiteral("DisableUnitFiles"),
+    Fcse::DBusHelper::systemdCall(QStringLiteral("DisableUnitFiles"),
         {QStringList{name}, false});
-    NsaFsm::DBusHelper::systemdCall(QStringLiteral("Reload"), {});
+    Fcse::DBusHelper::systemdCall(QStringLiteral("Reload"), {});
     QTimer::singleShot(500, m_model, &UnitModel::refresh);
 }
 
 void ServicesKcm::systemdAction(const QString &method, const QVariantList &args)
 {
-    NsaFsm::DBusHelper::systemdCall(method, args);
+    Fcse::DBusHelper::systemdCall(method, args);
     QTimer::singleShot(500, m_model, &UnitModel::refresh);
 }
 
-K_PLUGIN_CLASS_WITH_JSON(ServicesKcm, "kcm_nsa_services.json")
+K_PLUGIN_CLASS_WITH_JSON(ServicesKcm, "kcm_fcse_services.json")
 
 #include "serviceskcm.moc"

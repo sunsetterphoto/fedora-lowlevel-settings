@@ -1,7 +1,7 @@
-# NSA Fedora System Manager -- Design Specification
+# Fedora Core Setting Extension -- Design Specification
 
 **Datum:** 2026-04-07
-**Autor:** Samuel (NSA) + Claude
+**Autor:** sunsetterphoto + Claude
 **Status:** Draft
 **Zielplattform:** Fedora 43, KDE Plasma 6.6.3, KF6 6.24.0, Qt 6.10.2
 
@@ -31,14 +31,14 @@ Ein modulares KDE System Settings Plugin-Paket, das alle systemnahen Linux-Konfi
 └─────────────────────┼─────────────────────────────────┘
                       │
               ┌───────▼────────┐
-              │ libnsa-fsm-    │
+              │ libfcse-    │
               │ common.so      │
               │ (Shared Lib)   │
               └──┬──────────┬──┘
                  │          │
         ┌────────▼──┐  ┌───▼──────────────┐
         │  D-Bus    │  │  KAuth Helper    │
-        │  direkt   │  │  nsa-fsm-helper  │
+        │  direkt   │  │  fcse-helper  │
         │           │  │  (root-Prozess)  │
         └───────────┘  └──────────────────┘
 ```
@@ -57,7 +57,7 @@ Ein modulares KDE System Settings Plugin-Paket, das alle systemnahen Linux-Konfi
 
 ### Modul 1: systemd Services
 
-**KCM-Name:** `kcm_nsa_services`
+**KCM-Name:** `kcm_fcse_services`
 **Privilege:** D-Bus direkt (`org.freedesktop.systemd1`)
 
 **Features:**
@@ -79,14 +79,14 @@ Ein modulares KDE System Settings Plugin-Paket, das alle systemnahen Linux-Konfi
 
 ### Modul 2: sysctl Parameter
 
-**KCM-Name:** `kcm_nsa_sysctl`
-**Privilege:** KAuth-Helper (`org.kde.nsa-fsm.sysctl.write`)
+**KCM-Name:** `kcm_fcse_sysctl`
+**Privilege:** KAuth-Helper (`org.kde.fcse.sysctl.write`)
 
 **Features:**
 - Kategorisierte Baumansicht: kernel.*, vm.*, net.*, fs.*, dev.*
 - Pro Parameter: aktueller Wert, Default-Wert (aus /proc/sys), Beschreibung
 - Inline-Editing mit Validierung (Typ-Check: Integer, String, Boolean)
-- Nur geaenderte Werte werden nach `/etc/sysctl.d/99-nsa-fsm.conf` geschrieben
+- Nur geaenderte Werte werden nach `/etc/sysctl.d/99-fcse.conf` geschrieben
 - Preset-System:
   - "Desktop Balanced" (Fedora defaults)
   - "Low Latency" (swappiness=10, CFS tweaks)
@@ -96,7 +96,7 @@ Ein modulares KDE System Settings Plugin-Paket, das alle systemnahen Linux-Konfi
 **Datenquellen:**
 - Lesen: `/proc/sys/` (kein Root noetig)
 - Aktuelle Custom-Werte: `/etc/sysctl.d/*.conf` parsen
-- Schreiben: KAuth-Helper -> `/etc/sysctl.d/99-nsa-fsm.conf` + `sysctl --system`
+- Schreiben: KAuth-Helper -> `/etc/sysctl.d/99-fcse.conf` + `sysctl --system`
 
 **QML:** `ScrollViewKCM` mit TreeView + Kirigami.FormLayout fuer Details
 
@@ -104,8 +104,8 @@ Ein modulares KDE System Settings Plugin-Paket, das alle systemnahen Linux-Konfi
 
 ### Modul 3: Bootloader
 
-**KCM-Name:** `kcm_nsa_bootloader`
-**Privilege:** KAuth-Helper (`org.kde.nsa-fsm.grub.write`, `org.kde.nsa-fsm.bls.write`)
+**KCM-Name:** `kcm_fcse_bootloader`
+**Privilege:** KAuth-Helper (`org.kde.fcse.grub.write`, `org.kde.fcse.bls.write`)
 
 **Features:**
 - Bootloader-Erkennung: GRUB2 vs systemd-boot (prueft `/boot/efi/EFI/fedora/grub.cfg` und `/boot/efi/loader/loader.conf`)
@@ -128,8 +128,8 @@ Ein modulares KDE System Settings Plugin-Paket, das alle systemnahen Linux-Konfi
 
 ### Modul 4: fstab / Mounts
 
-**KCM-Name:** `kcm_nsa_fstab`
-**Privilege:** KAuth-Helper (`org.kde.nsa-fsm.fstab.write`) + D-Bus (`org.freedesktop.UDisks2`)
+**KCM-Name:** `kcm_fcse_fstab`
+**Privilege:** KAuth-Helper (`org.kde.fcse.fstab.write`) + D-Bus (`org.freedesktop.UDisks2`)
 
 **Features:**
 - Tabelle aller `/etc/fstab`-Eintraege: Device, Mountpoint, Typ, Optionen, Dump, Pass
@@ -149,8 +149,8 @@ Ein modulares KDE System Settings Plugin-Paket, das alle systemnahen Linux-Konfi
 
 ### Modul 5: Kernel-Module
 
-**KCM-Name:** `kcm_nsa_kernelmodules`
-**Privilege:** KAuth-Helper (`org.kde.nsa-fsm.modprobe.write`, `org.kde.nsa-fsm.modprobe.load`)
+**KCM-Name:** `kcm_fcse_kernelmodules`
+**Privilege:** KAuth-Helper (`org.kde.fcse.modprobe.write`, `org.kde.fcse.modprobe.load`)
 
 **Features:**
 - Liste geladener Module aus `/proc/modules`: Name, Groesse, Used-by, Status
@@ -160,7 +160,7 @@ Ein modulares KDE System Settings Plugin-Paket, das alle systemnahen Linux-Konfi
 - Aktionen:
   - Modul entladen (`rmmod` via Helper) -- mit Warnung bei Abhaengigkeiten
   - Modul laden (`modprobe` via Helper)
-  - Modul blacklisten -> schreibt nach `/etc/modprobe.d/nsa-fsm-blacklist.conf`
+  - Modul blacklisten -> schreibt nach `/etc/modprobe.d/fcse-blacklist.conf`
   - Blacklist aufheben
 - Blacklist-Ansicht: alle Eintraege aus `/etc/modprobe.d/*.conf` mit `blacklist` Direktive
 - Warnung bei kritischen Modulen (Dateisystem-Treiber, GPU-Treiber)
@@ -171,8 +171,8 @@ Ein modulares KDE System Settings Plugin-Paket, das alle systemnahen Linux-Konfi
 
 ### Modul 6: Scheduled Tasks
 
-**KCM-Name:** `kcm_nsa_scheduledtasks`
-**Privilege:** D-Bus (`org.freedesktop.systemd1`) + KAuth-Helper (`org.kde.nsa-fsm.cron.write`)
+**KCM-Name:** `kcm_fcse_scheduledtasks`
+**Privilege:** D-Bus (`org.freedesktop.systemd1`) + KAuth-Helper (`org.kde.fcse.cron.write`)
 
 **Features:**
 - **Tab 1: systemd Timer**
@@ -195,8 +195,8 @@ Ein modulares KDE System Settings Plugin-Paket, das alle systemnahen Linux-Konfi
 
 ### Modul 7: Sicherheit
 
-**KCM-Name:** `kcm_nsa_security`
-**Privilege:** KAuth-Helper (`org.kde.nsa-fsm.sudoers.write`)
+**KCM-Name:** `kcm_fcse_security`
+**Privilege:** KAuth-Helper (`org.kde.fcse.sudoers.write`)
 
 **Features:**
 - **Tab 1: sudoers**
@@ -222,8 +222,8 @@ Ein modulares KDE System Settings Plugin-Paket, das alle systemnahen Linux-Konfi
 
 ### Modul 8: DNF Repos
 
-**KCM-Name:** `kcm_nsa_dnfrepos`
-**Privilege:** KAuth-Helper (`org.kde.nsa-fsm.repos.write`)
+**KCM-Name:** `kcm_fcse_dnfrepos`
+**Privilege:** KAuth-Helper (`org.kde.fcse.repos.write`)
 
 **Features:**
 - Liste aller .repo-Dateien aus `/etc/yum.repos.d/`
@@ -244,8 +244,8 @@ Ein modulares KDE System Settings Plugin-Paket, das alle systemnahen Linux-Konfi
 
 ### Modul 9: Hostname & Netzwerk-Identitaet
 
-**KCM-Name:** `kcm_nsa_hostname`
-**Privilege:** D-Bus (`org.freedesktop.hostname1`) + KAuth-Helper (`org.kde.nsa-fsm.hosts.write`)
+**KCM-Name:** `kcm_fcse_hostname`
+**Privilege:** D-Bus (`org.freedesktop.hostname1`) + KAuth-Helper (`org.kde.fcse.hosts.write`)
 
 **Features:**
 - **Hostname-Sektion:**
@@ -268,8 +268,8 @@ Ein modulares KDE System Settings Plugin-Paket, das alle systemnahen Linux-Konfi
 
 ### Modul 10: Umgebungsvariablen
 
-**KCM-Name:** `kcm_nsa_environment`
-**Privilege:** KAuth-Helper (`org.kde.nsa-fsm.env.write`) fuer System-Level, unprivilegiert fuer User-Level
+**KCM-Name:** `kcm_fcse_environment`
+**Privilege:** KAuth-Helper (`org.kde.fcse.env.write`) fuer System-Level, unprivilegiert fuer User-Level
 
 **Features:**
 - **Tab 1: Systemweit**
@@ -278,7 +278,7 @@ Ein modulares KDE System Settings Plugin-Paket, das alle systemnahen Linux-Konfi
 - **Tab 2: User-Session**
   - `~/.config/environment.d/*.conf` (systemd user environment generators)
   - Key=Value Editor, braucht kein Root
-  - Aenderungen werden nach `~/.config/environment.d/nsa-fsm.conf` geschrieben
+  - Aenderungen werden nach `~/.config/environment.d/fcse.conf` geschrieben
 - Aktive Umgebung anzeigen: Alle aktuellen Variablen aus `/proc/self/environ` als Referenz
 - Bekannte Variablen mit Erklaerung markieren (PATH, HOME, XDG_*, LANG, etc.)
 
@@ -288,8 +288,8 @@ Ein modulares KDE System Settings Plugin-Paket, das alle systemnahen Linux-Konfi
 
 ### Modul 11: Swap & zram
 
-**KCM-Name:** `kcm_nsa_swap`
-**Privilege:** KAuth-Helper (`org.kde.nsa-fsm.zram.write`)
+**KCM-Name:** `kcm_fcse_swap`
+**Privilege:** KAuth-Helper (`org.kde.fcse.zram.write`)
 
 **Features:**
 - **zram-Sektion:**
@@ -314,7 +314,7 @@ Ein modulares KDE System Settings Plugin-Paket, das alle systemnahen Linux-Konfi
 
 ### Modul 12: System-Logs (Journal)
 
-**KCM-Name:** `kcm_nsa_journal`
+**KCM-Name:** `kcm_fcse_journal`
 **Privilege:** Unprivilegiert (User ist in `systemd-journal` Gruppe)
 
 **Features:**
@@ -339,14 +339,14 @@ Ein modulares KDE System Settings Plugin-Paket, das alle systemnahen Linux-Konfi
 
 ---
 
-## 4. Shared Library: libnsa-fsm-common
+## 4. Shared Library: libfcse-common
 
 ### BackupManager
 
 ```cpp
 class BackupManager {
 public:
-    // Erstellt Backup in /var/lib/nsa-fsm/backups/
+    // Erstellt Backup in /var/lib/fcse/backups/
     // Format: {basename}.{ISO-timestamp}.bak
     // Returns: Pfad zum Backup oder Fehler
     static Result<QString> backup(const QString &filePath);
@@ -447,100 +447,100 @@ public:
 
 ---
 
-## 5. KAuth-Helper: nsa-fsm-helper
+## 5. KAuth-Helper: fcse-helper
 
 ### Aktionen
 
 Alle Aktionen folgen dem Schema: Argumente validieren -> Backup erstellen -> Datei schreiben -> Post-Action ausfuehren -> Ergebnis zurueckgeben.
 
 ```
-org.kde.nsa-fsm.sysctl.write
+org.kde.fcse.sysctl.write
   Args: { "content": "key = value\n..." }
   Post: sysctl --system
-  Writes: /etc/sysctl.d/99-nsa-fsm.conf
+  Writes: /etc/sysctl.d/99-fcse.conf
 
-org.kde.nsa-fsm.grub.write
+org.kde.fcse.grub.write
   Args: { "content": "KEY=VALUE\n..." }
   Post: grub2-mkconfig -o /boot/grub2/grub.cfg
   Writes: /etc/default/grub
 
-org.kde.nsa-fsm.bls.read
+org.kde.fcse.bls.read
   Args: { }
   Returns: { "entries": [...] }
   Note: Lesen benoetigt Root wegen /boot/loader/entries/ Permissions
 
-org.kde.nsa-fsm.bls.write
+org.kde.fcse.bls.write
   Args: { "filename": "...", "content": "..." }
   Post: (keine)
   Writes: /boot/loader/entries/{filename}
 
-org.kde.nsa-fsm.bls.setdefault
+org.kde.fcse.bls.setdefault
   Args: { "kernel": "6.19.10-200.fc43.x86_64" }
   Post: grubby --set-default /boot/vmlinuz-{kernel}
 
-org.kde.nsa-fsm.fstab.write
+org.kde.fcse.fstab.write
   Args: { "content": "..." }
   Post: systemctl daemon-reload
   Writes: /etc/fstab
   Validates: findmnt --verify --tab-file {temp}
 
-org.kde.nsa-fsm.modprobe.write
+org.kde.fcse.modprobe.write
   Args: { "content": "..." }
   Post: depmod -a
-  Writes: /etc/modprobe.d/nsa-fsm-blacklist.conf
+  Writes: /etc/modprobe.d/fcse-blacklist.conf
 
-org.kde.nsa-fsm.modprobe.load
+org.kde.fcse.modprobe.load
   Args: { "module": "...", "action": "load|unload" }
   Post: modprobe {module} | rmmod {module}
 
-org.kde.nsa-fsm.cron.write
+org.kde.fcse.cron.write
   Args: { "filename": "...", "content": "..." }
   Writes: /etc/cron.d/{filename}
 
-org.kde.nsa-fsm.sudoers.write
+org.kde.fcse.sudoers.write
   Args: { "filename": "...", "content": "..." }
   Validates: Schreibt temp-Datei, prueft mit visudo -c -f {temp}
   Writes: /etc/sudoers.d/{filename} (nur bei erfolgreicher Validierung)
 
-org.kde.nsa-fsm.selinux.setmode
+org.kde.fcse.selinux.setmode
   Args: { "mode": "enforcing|permissive", "persistent": true|false }
   Post: setenforce {0|1} + optional /etc/selinux/config
 
-org.kde.nsa-fsm.selinux.setbool
+org.kde.fcse.selinux.setbool
   Args: { "name": "...", "value": true|false, "persistent": true|false }
   Post: setsebool [-P] {name} {on|off}
 
-org.kde.nsa-fsm.repos.write
+org.kde.fcse.repos.write
   Args: { "filename": "...", "content": "..." }
   Writes: /etc/yum.repos.d/{filename}
 
-org.kde.nsa-fsm.repos.copr
+org.kde.fcse.repos.copr
   Args: { "action": "enable|disable", "project": "owner/name" }
   Post: dnf5 copr {enable|disable} {project} -y
 
-org.kde.nsa-fsm.hosts.write
+org.kde.fcse.hosts.write
   Args: { "content": "..." }
   Writes: /etc/hosts
 
-org.kde.nsa-fsm.env.write
+org.kde.fcse.env.write
   Args: { "file": "environment|profile.d/{name}", "content": "..." }
   Writes: /etc/environment | /etc/profile.d/{name}
 
-org.kde.nsa-fsm.resolved.write
+org.kde.fcse.resolved.write
   Args: { "content": "..." }
   Post: systemctl restart systemd-resolved
   Writes: /etc/systemd/resolved.conf
 
-org.kde.nsa-fsm.zram.write
+org.kde.fcse.zram.write
   Args: { "content": "..." }
   Writes: /etc/systemd/zram-generator.conf
   Note: Benoetigt Reboot (Info an User)
 
-org.kde.nsa-fsm.generic.backup
+org.kde.fcse.generic.backup
   Args: { "filePath": "..." }
   Returns: { "backupPath": "..." }
 
-org.kde.nsa-fsm.generic.restore
+org.kde.fcse.generic.restore
   Args: { "backupPath": "...", "originalPath": "..." }
 ```
 
@@ -550,11 +550,11 @@ Alle Aktionen: `auth_admin` (erfordert Admin-Passwort). Kein NOPASSWD im Design 
 
 ```xml
 <policyconfig>
-  <vendor>NSA Fedora System Manager</vendor>
-  <vendor_url>https://github.com/nsa-fedora-system-manager</vendor_url>
+  <vendor>Fedora Core Setting Extension</vendor>
+  <vendor_url>https://github.com/fedora-core-setting-extension</vendor_url>
   <icon_name>preferences-system</icon_name>
 
-  <action id="org.kde.nsa-fsm.sysctl.write">
+  <action id="org.kde.fcse.sysctl.write">
     <description>Write sysctl configuration</description>
     <message>Authentication is required to modify kernel parameters</message>
     <defaults>
@@ -576,7 +576,7 @@ Alle Aktionen: `auth_admin` (erfordert Admin-Passwort). Kein NOPASSWD im Design 
 Jede Schreiboperation im KAuth-Helper erstellt ZUERST ein Backup:
 
 ```
-1. backup(/etc/fstab) -> /var/lib/nsa-fsm/backups/fstab.2026-04-07T14:30:00.bak
+1. backup(/etc/fstab) -> /var/lib/fcse/backups/fstab.2026-04-07T14:30:00.bak
 2. Validierung der neuen Datei
 3. Bei Validierungsfehler: Abbruch, Backup bleibt, Fehler an User
 4. Bei Erfolg: Datei schreiben
@@ -610,19 +610,19 @@ Jede Schreiboperation im KAuth-Helper erstellt ZUERST ein Backup:
 ### Verzeichnis
 
 ```
-~/nsa-fedora-system-manager/     # Git-Repo, spaeter auf GitHub
+~/fedora-core-setting-extension/     # Git-Repo, spaeter auf GitHub
 ```
 
 ### Build & Test Workflow
 
 ```bash
 # Build
-cd ~/nsa-fedora-system-manager
+cd ~/fedora-core-setting-extension
 cmake -B build -DCMAKE_INSTALL_PREFIX=/usr
 cmake --build build
 
 # Test einzelnes KCM (ohne System-Install)
-QT_PLUGIN_PATH=build/kcms kcmshell6 kcm_nsa_services
+QT_PLUGIN_PATH=build/kcms kcmshell6 kcm_fcse_services
 
 # System-Install (fuer Integration in Systemsettings)
 sudo cmake --install build
@@ -669,7 +669,7 @@ Alle installierten Dateien landen in Standard-Pfaden, die SELinux bereits kennt:
 - `/usr/libexec/kf6/kauth/` -- `bin_t`
 - `/usr/share/polkit-1/actions/` -- `usr_t`
 - `/usr/share/dbus-1/` -- `usr_t`
-- `/var/lib/nsa-fsm/` -- braucht evtl. eigenen SELinux-Context, oder `var_lib_t` reicht
+- `/var/lib/fcse/` -- braucht evtl. eigenen SELinux-Context, oder `var_lib_t` reicht
 
 ---
 
@@ -680,7 +680,7 @@ Empfohlene Build-Reihenfolge nach Abhaengigkeiten:
 | Phase | Was | Warum zuerst |
 |-------|-----|-------------|
 | **Phase 0** | Projekt-Skeleton + CMake + Kategorie-Registration | Grundgeruest |
-| **Phase 1** | libnsa-fsm-common (BackupManager, DBusHelper, ConfigParser) | Alle Module haengen davon ab |
+| **Phase 1** | libfcse-common (BackupManager, DBusHelper, ConfigParser) | Alle Module haengen davon ab |
 | **Phase 2** | KAuth-Helper mit Grundstruktur + polkit-Policy | Alle schreibenden Module brauchen den |
 | **Phase 3a** | Journal-Modul | Kein KAuth noetig, gut zum Testen der QML-Pipeline |
 | **Phase 3b** | systemd-Services-Modul | D-Bus direkt, kein KAuth, zweiter Test der Pipeline |

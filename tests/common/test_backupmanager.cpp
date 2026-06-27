@@ -3,7 +3,7 @@
 #include <QFile>
 #include "backupmanager.h"
 
-using namespace NsaFsm;
+using namespace Fcse;
 
 class TestBackupManager : public QObject
 {
@@ -23,7 +23,7 @@ private Q_SLOTS:
 
         auto result = BackupManager::backup(testFile);
         if (!result) {
-            QSKIP("Backup directory not writable (run as root or create /var/lib/nsa-fsm/backups/)");
+            QSKIP("Backup directory not writable (run as root or create /var/lib/fcse/backups/)");
         }
 
         QVERIFY(QFileInfo::exists(*result));

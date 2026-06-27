@@ -205,8 +205,8 @@ void SysctlModel::loadCustomValues()
 {
     m_customValues.clear();
 
-    const QString confPath = QStringLiteral("/etc/sysctl.d/99-nsa-fsm.conf");
-    const auto entries = NsaFsm::ConfigParser::parseSysctl(confPath);
+    const QString confPath = QStringLiteral("/etc/sysctl.d/99-fcse.conf");
+    const auto entries = Fcse::ConfigParser::parseSysctl(confPath);
 
     for (const auto &entry : entries) {
         m_customValues[entry.key] = entry.value;
