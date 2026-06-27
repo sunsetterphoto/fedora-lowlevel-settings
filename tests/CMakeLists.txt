@@ -14,3 +14,10 @@ target_link_libraries(test_configparser
     Qt6::Test
 )
 add_test(NAME test_configparser COMMAND test_configparser)
+
+add_executable(test_helperpolicy helper/test_helperpolicy.cpp)
+target_link_libraries(test_helperpolicy
+    fls-helperpolicy
+    Qt6::Test
+)
+add_test(NAME test_helperpolicy COMMAND test_helperpolicy)
